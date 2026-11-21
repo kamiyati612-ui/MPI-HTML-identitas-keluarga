@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Keluargaku: Aku dan Identitas Keluargaku</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Nunito (Bulat, Jelas, Ramah Anak) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk Musik Latar & Efek Suara Ceria tanpa file eksternal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Canvas Confetti untuk Animasi Selebrasi -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Pengaturan Font & Warna Tema Ramah Anak */
+        :root {
+            --pink-pastel: #FFD1DC;
+            --pink-dark: #FF6B9D;
+            --blue-pastel: #D0F0FD;
+            --blue-dark: #38BDF8;
+            --yellow-pastel: #FEF08A;
+            --yellow-dark: #FACC15;
+            --green-pastel: #DCFCE7;
+            --green-dark: #4ADE80;
+            --orange-pastel: #FFEDD5;
+            --orange-dark: #FB923C;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #E0F2FE 0%, #FCE7F3 50%, #FEF9C3 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, h3, .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Tombol 3D Ceria */
+        .btn-3d {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+            transform: translateY(0);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+        }
+
+        /* Animasi Mengambang & Memantul */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 3.5s ease-in-out infinite;
+        }
+        .animate-float-delay {
+            animation: float 4s ease-in-out 1.5s infinite;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Kartu 3D */
+        .card-3d {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: 4px solid #FFFFFF;
+            box-shadow: 0 12px 25px -5px rgba(56, 189, 248, 0.18), 0 8px 10px -6px rgba(244, 114, 182, 0.15);
+            border-radius: 28px;
+        }
+
+        /* Gaya Drag & Drop / Klik Pasangan */
+        .drop-zone {
+            border: 3px dashed #93C5FD;
+            transition: all 0.2s;
+        }
+        .drop-zone.highlight {
+            border-color: #F472B6;
+            background-color: #FDF2F8;
+            transform: scale(1.03);
+        }
+        .selected-item {
+            ring: 4px;
+            ring-color: #F59E0B;
+            transform: scale(1.06);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Styling Khusus Cetak LKPD A4 */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #lkpd-printable, #lkpd-printable * {
+                visibility: visible;
+            }
+            #lkpd-printable {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between">
+
+    <!-- HEADER NAVIGASI & KONTROL AUDIO (Muncul saat masuk aplikasi) -->
+    <header id="app-header" class="hidden sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b-4 border-sky-200 px-3 py-2 sm:px-6 shadow-sm no-print">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- Kiri: Tombol Beranda & Kembali -->
+            <div class="flex items-center gap-2">
+                <button onclick="goHome()" class="btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-3 py-2 rounded-2xl flex items-center gap-1.5 text-sm sm:text-base" title="Kembali ke Menu Utama">
+                    <span class="text-xl">🏠</span>
+                    <span class="hidden sm:inline">Menu Utama</span>
+                </button>
+                <button id="btn-back" onclick="goBack()" class="hidden btn-3d bg-sky-400 hover:bg-sky-500 text-white font-bold px-3 py-2 rounded-2xl flex items-center gap-1 text-sm sm:text-base">
+                    <span>⬅️</span>
+                    <span class="hidden sm:inline">Kembali</span>
+                </button>
+            </div>
+
+            <!-- Tengah: Progress & Bintang -->
+            <div class="flex items-center gap-3 bg-pink-50 border-2 border-pink-200 px-3 py-1.5 rounded-2xl">
+                <div class="flex items-center gap-1" title="Total Bintang yang Dikumpulkan">
+                    <span class="text-xl animate-pulse">⭐</span>
+                    <span id="star-count" class="font-title font-bold text-lg text-amber-600">0</span>
+                </div>
+                <div class="h-5 w-0.5 bg-pink-200"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs sm:text-sm font-bold text-pink-600 hidden md:inline">Belajar:</span>
+                    <div class="w-20 sm:w-28 bg-pink-200 rounded-full h-3.5 overflow-hidden p-0.5">
+                        <div id="progress-bar" class="bg-gradient-to-r from-pink-500 to-amber-400 h-full rounded-full transition-all duration-500" style="width: 10%"></div>
+                    </div>
+                    <span id="progress-text" class="text-xs font-extrabold text-pink-700">10%</span>
+                </div>
+            </div>
+
+            <!-- Kanan: Kontrol Suara, Musik, Petunjuk -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button onclick="toggleNarrationMute()" id="btn-mute-voice" class="btn-3d bg-emerald-400 hover:bg-emerald-500 text-white p-2 rounded-2xl text-lg" title="Suara Narator Nyala/Mati">
+                    🔊
+                </button>
+                <button onclick="stopSpeech()" class="btn-3d bg-rose-400 hover:bg-rose-500 text-white p-2 rounded-2xl text-lg" title="Hentikan Suara">
+                    ⏹️
+                </button>
+                <button onclick="toggleBGM()" id="btn-bgm" class="btn-3d bg-purple-400 hover:bg-purple-500 text-white p-2 rounded-2xl text-lg" title="Musik Latar Ceria">
+                    🎵
+                </button>
+                <button onclick="showHelpModal()" class="btn-3d bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-2xl font-bold text-sm flex items-center gap-1" title="Petunjuk Penggunaan">
+                    <span>❓</span>
+                    <span class="hidden md:inline">Petunjuk</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA APLIKASI -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6">
+        <div class="w-full max-w-6xl mx-auto">
+
+            <!-- ========================================== -->
+            <!-- 0. HALAMAN PEMBUKA (SPLASH SCREEN)         -->
+            <!-- ========================================== -->
+            <section id="page-splash" class="animate-pop">
+                <div class="card-3d p-6 sm:p-10 text-center relative overflow-hidden bg-gradient-to-b from-sky-100 via-white to-pink-100">
+                    <!-- Dekorasi Awan & Matahari SVG -->
+                    <div class="absolute top-4 left-6 text-5xl opacity-80 animate-float">☀️</div>
+                    <div class="absolute top-8 right-10 text-4xl opacity-70 animate-float-delay">☁️</div>
+                    <div class="absolute bottom-6 left-8 text-4xl opacity-80">🏡</div>
+                    <div class="absolute bottom-6 right-8 text-4xl opacity-80">🌳</div>
+
+                    <!-- Tombol Suara & Musik di Halaman Pembuka -->
+                    <div class="flex justify-end gap-2 mb-2 relative z-10">
+                        <button onclick="playSplashNarration()" class="btn-3d bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                            <span>🗣️</span> Dengarkan Sapaan
+                        </button>
+                        <button onclick="toggleBGM()" id="btn-bgm-splash" class="btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-4 py-2 rounded-full text-sm flex items-center gap-1">
+                            <span>🎵</span> Musik: Mati
+                        </button>
+                    </div>
+
+                    <!-- Badge Kelas -->
+                    <div class="inline-block bg-pink-500 text-white font-title font-bold px-5 py-1.5 rounded-full text-sm sm:text-base shadow-md mb-3">
+                        Bahasa Indonesia • Fase A • Kelas 1 SD
+                    </div>
+
+                    <!-- Judul & Subjudul -->
+                    <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold text-sky-600 drop-shadow-sm tracking-tight mb-2">
+                        PETUALANGAN KELUARGAKU
+                    </h1>
+                    <h2 class="text-xl sm:text-3xl font-bold text-pink-500 mb-6">
+                        Aku dan Identitas Keluargaku
+                    </h2>
+
+                    <!-- Ilustrasi Karakter Nisa, Bimo & Keluarga Bahagia (SVG 3D Style) -->
+                    <div class="flex flex-wrap justify-center items-end gap-4 sm:gap-8 my-6">
+                        <!-- Karakter NISA -->
+                        <div class="flex flex-col items-center animate-float">
+                            <div id="avatar-nisa-splash" class="w-28 h-28 sm:w-36 sm:h-36"></div>
+                            <span class="bg-pink-500 text-white font-title font-bold px-4 py-1 rounded-full text-sm mt-2 shadow">Nisa</span>
+                        </div>
+
+                        <!-- Ilustrasi Keluarga Bahagia Tengah -->
+                        <div class="bg-white/80 p-4 rounded-3xl border-4 border-amber-300 shadow-lg flex items-center gap-2 sm:gap-3">
+                            <div id="splash-family-group" class="flex items-center gap-1 sm:gap-2"></div>
+                        </div>
+
+                        <!-- Karakter BIMO -->
+                        <div class="flex flex-col items-center animate-float-delay">
+                            <div id="avatar-bimo-splash" class="w-28 h-28 sm:w-36 sm:h-36"></div>
+                            <span class="bg-sky-500 text-white font-title font-bold px-4 py-1 rounded-full text-sm mt-2 shadow">Bimo</span>
+                        </div>
+                    </div>
+
+                    <!-- Kotak Dialog Sapaan -->
+                    <div class="max-w-2xl mx-auto bg-amber-50 border-3 border-amber-300 rounded-2xl p-4 mb-6 shadow-inner">
+                        <p class="text-base sm:text-lg font-bold text-slate-700 leading-relaxed">
+                            "Halo, teman-teman! Selamat datang di <span class="text-pink-600">Petualangan Keluargaku</span>. Hari ini kita akan belajar mengenal diri sendiri dan anggota keluarga. Ayo belajar bersama <span class="text-pink-600">Nisa</span> dan <span class="text-sky-600">Bimo</span>!"
+                        </p>
+                    </div>
+
+                    <!-- Tombol MULAI BELAJAR -->
+                    <button onclick="startLearning()" class="btn-3d bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 text-white font-title font-extrabold text-xl sm:text-2xl px-10 py-4 rounded-full shadow-xl flex items-center gap-3 mx-auto">
+                        <span>🚀</span> MULAI BELAJAR
+                    </button>
+
+                    <p class="text-xs sm:text-sm text-slate-500 mt-6 font-semibold">
+                        Dikembangkan oleh: Syifa Lutfiana Pangestu, S.Pd. • SDN 3 Kelaten
+                    </p>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 1. HALAMAN MENU UTAMA                      -->
+            <!-- ========================================== -->
+            <section id="page-menu" class="hidden animate-pop">
+                <div class="card-3d p-5 sm:p-8">
+                    <!-- Pemandu Nisa & Bimo -->
+                    <div class="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-sky-100 via-pink-50 to-amber-100 p-4 rounded-3xl border-2 border-white mb-6 gap-4">
+                        <div class="flex items-center gap-3">
+                            <div id="avatar-nisa-menu" class="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0"></div>
+                            <div>
+                                <span class="bg-pink-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">Pemandu Belajar</span>
+                                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">Pilih Petualangan Belajarmu!</h2>
+                                <p id="menu-guide-text" class="text-sm sm:text-base text-slate-600 font-semibold">Klik salah satu kotak warna-warni di bawah ini untuk mulai belajar bersama Nisa dan Bimo!</p>
+                            </div>
+                        </div>
+                        <button onclick="speakText('Pilih petualangan belajarmu! Klik tombol materi, simulasi, praktikum, game, L K P D, evaluasi, atau pengembang.')" class="btn-3d bg-pink-500 text-white px-4 py-2 rounded-2xl font-bold text-sm flex items-center gap-2 flex-shrink-0">
+                            <span>🔊</span> Dengarkan Pemandu
+                        </button>
+                    </div>
+
+                    <!-- Grid 7 Menu Utama -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                        <!-- 1. MATERI -->
+                        <button onclick="openSection('materi')" class="btn-3d bg-gradient-to-br from-pink-400 to-rose-500 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group">
+                            <div class="text-5xl mb-2 group-hover:scale-110 transition-transform">📚</div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Langkah 1</div>
+                                <h3 class="text-2xl font-extrabold">MATERI</h3>
+                                <p class="text-xs text-pink-100 font-semibold">Mengenal diri & anggota keluarga</p>
+                            </div>
+                            <span id="badge-materi" class="hidden absolute top-3 right-3 bg-yellow-300 text-slate-900 text-xs font-extrabold px-2 py-1 rounded-full">✓ Selesai</span>
+                        </button>
+
+                        <!-- 2. SIMULASI -->
+                        <button onclick="openSection('simulasi')" class="btn-3d bg-gradient-to-br from-sky-400 to-blue-500 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group">
+                            <div class="text-5xl mb-2 group-hover:scale-110 transition-transform">🌳</div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Langkah 2</div>
+                                <h3 class="text-2xl font-extrabold">SIMULASI</h3>
+                                <p class="text-xs text-sky-100 font-semibold">Ayo Kenali Keluarga Rani!</p>
+                            </div>
+                            <span id="badge-simulasi" class="hidden absolute top-3 right-3 bg-yellow-300 text-slate-900 text-xs font-extrabold px-2 py-1 rounded-full">✓ Selesai</span>
+                        </button>
+
+                        <!-- 3. PRAKTIKUM -->
+                        <button onclick="openSection('praktikum')" class="btn-3d bg-gradient-to-br from-emerald-400 to-teal-500 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group">
+                            <div class="text-5xl mb-2 group-hover:scale-110 transition-transform">🧩</div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Langkah 3</div>
+                                <h3 class="text-2xl font-extrabold">PRAKTIKUM</h3>
+                                <p class="text-xs text-emerald-100 font-semibold">Ayo Susun Pohon Keluarga!</p>
+                            </div>
+                            <span id="badge-praktikum" class="hidden absolute top-3 right-3 bg-yellow-300 text-slate-900 text-xs font-extrabold px-2 py-1 rounded-full">✓ Selesai</span>
+                        </button>
+
+                        <!-- 4. GAME -->
+                        <button onclick="openSection('game')" class="btn-3d bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group">
+                            <div class="text-5xl mb-2 group-hover:scale-110 transition-transform">🎮</div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Langkah 4</div>
+                                <h3 class="text-2xl font-extrabold">GAME SERU</h3>
+                                <p class="text-xs text-amber-100 font-semibold">3 Permainan Edukatif</p>
+                            </div>
+                            <span id="badge-game" class="hidden absolute top-3 right-3 bg-yellow-300 text-slate-900 text-xs font-extrabold px-2 py-1 rounded-full">✓ Selesai</span>
+                        </button>
+
+                        <!-- 5. LKPD -->
+                        <button onclick="openSection('lkpd')" class="btn-3d bg-gradient-to-br from-purple-400 to-indigo-500 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group">
+                            <div class="text-5xl mb-2 group-hover:scale-110 transition-transform">📝</div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Langkah 5</div>
+                                <h3 class="text-2xl font-extrabold">LKPD DIGITAL</h3>
+                                <p class="text-xs text-purple-100 font-semibold">Lembar Kerja Peserta Didik</p>
+                            </div>
+                            <span id="badge-lkpd" class="hidden absolute top-3 right-3 bg-yellow-300 text-slate-900 text-xs font-extrabold px-2 py-1 rounded-full">✓ Selesai</span>
+                        </button>
+
+                        <!-- 6. EVALUASI -->
+                        <button onclick="openSection('evaluasi')" class="btn-3d bg-gradient-to-br from-red-400 to-pink-600 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group">
+                            <div class="text-5xl mb-2 group-hover:scale-110 transition-transform">🏆</div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Langkah 6</div>
+                                <h3 class="text-2xl font-extrabold">EVALUASI</h3>
+                                <p class="text-xs text-red-100 font-semibold">Uji Pemahaman & Nilai Akhir</p>
+                            </div>
+                            <span id="badge-evaluasi" class="hidden absolute top-3 right-3 bg-yellow-300 text-slate-900 text-xs font-extrabold px-2 py-1 rounded-full">✓ Selesai</span>
+                        </button>
+
+                        <!-- 7. PENGEMBANG -->
+                        <button onclick="openSection('pengembang')" class="btn-3d bg-gradient-to-br from-cyan-500 to-sky-600 text-white p-5 rounded-3xl text-left flex flex-col justify-between h-44 relative overflow-hidden group sm:col-span-2">
+                            <div class="flex items-center justify-between">
+                                <div class="text-5xl group-hover:scale-110 transition-transform">👩‍🏫</div>
+                                <div id="avatar-bimo-menu" class="w-16 h-16"></div>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider bg-white/25 inline-block px-2 py-0.5 rounded-lg mb-1">Informasi Media</div>
+                                <h3 class="text-2xl font-extrabold">PROFIL PENGEMBANG</h3>
+                                <p class="text-xs text-cyan-100 font-semibold">Syifa Lutfiana Pangestu, S.Pd. • SDN 3 Kelaten</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 2. MENU MATERI (5 SUB-MATERI INTERAKTIF)    -->
+            <!-- ========================================== -->
+            <section id="page-materi" class="hidden animate-pop">
+                <div class="card-3d p-4 sm:p-8">
+                    <!-- Header Materi -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5 border-b-4 border-pink-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-4xl">📚</span>
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-extrabold text-pink-600">MATERI PEMBELAJARAN</h2>
+                                <p class="text-sm font-bold text-slate-500">Klik tab di bawah untuk mempelajari setiap bagian!</p>
+                            </div>
+                        </div>
+                        <button onclick="speakCurrentMateri()" class="btn-3d bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 text-sm sm:text-base">
+                            <span>🔊</span> Bacakan Materi
+                        </button>
+                    </div>
+
+                    <!-- Navigasi Tab 5 Materi -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button onclick="switchMateriTab(1)" id="tab-mat-1" class="btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-pink-500 text-white">1. Identitas Diri</button>
+                        <button onclick="switchMateriTab(2)" id="tab-mat-2" class="btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-sky-100 text-sky-800">2. Anggota Keluarga</button>
+                        <button onclick="switchMateriTab(3)" id="tab-mat-3" class="btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-sky-100 text-sky-800">3. Hubungan Keluarga</button>
+                        <button onclick="switchMateriTab(4)" id="tab-mat-4" class="btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-sky-100 text-sky-800">4. Kosakata</button>
+                        <button onclick="switchMateriTab(5)" id="tab-mat-5" class="btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-sky-100 text-sky-800">5. Kalimat Sederhana</button>
+                    </div>
+
+                    <!-- KONTEN MATERI 1: MENGENAL IDENTITAS DIRI -->
+                    <div id="materi-content-1" class="materi-tab-panel">
+                        <div class="bg-pink-50 rounded-3xl p-5 sm:p-6 border-2 border-pink-200">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-pink-700 mb-3">🌟 Materi 1: Mengenal Identitas Diri</h3>
+                            <p class="text-base sm:text-lg font-semibold text-slate-700 mb-5">
+                                Setiap anak memiliki <strong>identitas diri</strong>. Identitas diri adalah ciri-ciri atau keterangan tentang diri kita sendiri agar orang lain dapat mengenal kita dengan baik.
+                            </p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                <!-- Kartu Pelajar Rani -->
+                                <div class="bg-white rounded-3xl p-5 border-4 border-amber-300 shadow-md">
+                                    <div class="flex items-center justify-between bg-amber-300 text-slate-900 font-title font-bold px-4 py-2 rounded-2xl mb-4">
+                                        <span>🪪 KARTU IDENTITAS SISWA</span>
+                                        <span>SDN 3 KELATEN</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                                        <div id="avatar-rani-materi" class="w-28 h-28 flex-shrink-0"></div>
+                                        <div class="space-y-2 text-base sm:text-lg w-full">
+                                            <div class="bg-sky-50 px-3 py-1.5 rounded-xl"><strong>Nama Lengkap:</strong> Rani Putri</div>
+                                            <div class="bg-pink-50 px-3 py-1.5 rounded-xl"><strong>Nama Panggilan:</strong> Rani</div>
+                                            <div class="bg-amber-50 px-3 py-1.5 rounded-xl"><strong>Usia:</strong> 7 tahun</div>
+                                            <div class="bg-emerald-50 px-3 py-1.5 rounded-xl"><strong>Kelas:</strong> 1 SD</div>
+                                            <div class="bg-purple-50 px-3 py-1.5 rounded-xl"><strong>Sekolah:</strong> SDN 3 Kelaten</div>
+                                        </div>
+                                    </div>
+                                    <button onclick="speakText('Halo! Nama lengkapku Rani Putri. Nama panggilanku Rani. Usiaku 7 tahun. Aku kelas 1 S D. Aku bersekolah di S D N 3 Kelaten.')" class="mt-4 w-full btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold py-2.5 rounded-2xl flex items-center justify-center gap-2">
+                                        <span>🗣️</span> Dengarkan Perkenalan Rani
+                                    </button>
+                                </div>
+
+                                <!-- Poin Penting Identitas -->
+                                <div class="space-y-3">
+                                    <h4 class="font-title font-bold text-lg text-sky-700">Apa saja yang termasuk Identitas Diri?</h4>
+                                    <div class="bg-white p-3.5 rounded-2xl border-2 border-sky-200 flex items-center gap-3 cursor-pointer hover:bg-sky-50" onclick="speakText('Nama lengkap adalah nama panjang kita sesuai akta kelahiran.')">
+                                        <span class="text-2xl">1️⃣</span>
+                                        <div><strong>Nama Lengkap:</strong> Nama panjang kita.</div>
+                                    </div>
+                                    <div class="bg-white p-3.5 rounded-2xl border-2 border-sky-200 flex items-center gap-3 cursor-pointer hover:bg-sky-50" onclick="speakText('Nama panggilan adalah nama pendek yang biasa dipanggil teman atau keluarga.')">
+                                        <span class="text-2xl">2️⃣</span>
+                                        <div><strong>Nama Panggilan:</strong> Nama pendek kita sehari-hari.</div>
+                                    </div>
+                                    <div class="bg-white p-3.5 rounded-2xl border-2 border-sky-200 flex items-center gap-3 cursor-pointer hover:bg-sky-50" onclick="speakText('Usia adalah umur kita sekarang. Anak kelas 1 S D biasanya berusia 6 atau 7 tahun.')">
+                                        <span class="text-2xl">3️⃣</span>
+                                        <div><strong>Usia:</strong> Umur kita (contoh: 6 atau 7 tahun).</div>
+                                    </div>
+                                    <div class="bg-white p-3.5 rounded-2xl border-2 border-sky-200 flex items-center gap-3 cursor-pointer hover:bg-sky-50" onclick="speakText('Kelas dan sekolah menunjukkan tempat kita belajar.')">
+                                        <span class="text-2xl">4️⃣</span>
+                                        <div><strong>Kelas & Sekolah:</strong> Tempat kita belajar (Kelas 1 SD).</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KONTEN MATERI 2: MENGENAL ANGGOTA KELUARGA -->
+                    <div id="materi-content-2" class="materi-tab-panel hidden">
+                        <div class="bg-sky-50 rounded-3xl p-5 sm:p-6 border-2 border-sky-200">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-sky-700 mb-2">👨‍👩‍👧‍👦 Materi 2: Mengenal Anggota Keluarga</h3>
+                            <p class="text-base font-semibold text-slate-600 mb-4">Klik gambar setiap anggota keluarga di bawah ini untuk melihat penjelasan dan mendengarkan suaranya!</p>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-5" id="materi2-cards">
+                                <!-- Diisi otomatis via JS -->
+                            </div>
+
+                            <!-- Kotak Penjelasan Anggota Keluarga yang Diklik -->
+                            <div id="materi2-detail" class="bg-white rounded-3xl p-5 border-4 border-sky-300 flex flex-col sm:flex-row items-center gap-5 shadow-md">
+                                <div id="materi2-detail-avatar" class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0"></div>
+                                <div class="text-center sm:text-left flex-grow">
+                                    <span class="bg-sky-500 text-white text-xs font-bold px-3 py-1 rounded-full">Anggota Keluarga</span>
+                                    <h4 id="materi2-detail-title" class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1">Ayah</h4>
+                                    <p id="materi2-detail-desc" class="text-base sm:text-lg font-semibold text-slate-600 mt-1">Ayah adalah orang tua laki-laki dalam keluarga. Ayah bekerja dan melindungi keluarga.</p>
+                                </div>
+                                <button id="materi2-detail-btn" onclick="speakText('Ayah. Ayah adalah orang tua laki-laki dalam keluarga.')" class="btn-3d bg-emerald-400 hover:bg-emerald-500 text-white font-bold px-5 py-3 rounded-2xl flex items-center gap-2">
+                                    <span>🔊</span> Dengarkan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KONTEN MATERI 3: MENGENAL HUBUNGAN KELUARGA (POHON KELUARGA) -->
+                    <div id="materi-content-3" class="materi-tab-panel hidden">
+                        <div class="bg-emerald-50 rounded-3xl p-5 sm:p-6 border-2 border-emerald-200">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-emerald-700 mb-2">🌳 Materi 3: Mengenal Hubungan Keluarga</h3>
+                            <p class="text-base font-semibold text-slate-600 mb-4">Perhatikan silsilah pohon keluarga di bawah ini! Klik tiap kotak untuk mendengarkan hubungan kekerabatannya.</p>
+
+                            <!-- Visual Pohon Keluarga -->
+                            <div class="bg-gradient-to-b from-sky-100 to-green-100 p-4 sm:p-6 rounded-3xl border-4 border-emerald-300 flex flex-col items-center gap-4">
+                                <!-- Generasi 1: Kakek & Nenek -->
+                                <div class="text-xs font-extrabold uppercase bg-amber-300 text-slate-900 px-3 py-1 rounded-full">Orang Tua dari Ayah / Ibu</div>
+                                <div class="flex flex-wrap justify-center gap-4 sm:gap-8">
+                                    <div onclick="speakText('Kakek adalah ayah dari ayah atau ibu kita.')" class="cursor-pointer btn-3d bg-white p-3 rounded-2xl border-2 border-amber-400 flex flex-col items-center w-32">
+                                        <div id="tree-kakek" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1">Kakek</span>
+                                    </div>
+                                    <div class="flex items-center text-2xl font-bold text-pink-500">❤️</div>
+                                    <div onclick="speakText('Nenek adalah ibu dari ayah atau ibu kita.')" class="cursor-pointer btn-3d bg-white p-3 rounded-2xl border-2 border-amber-400 flex flex-col items-center w-32">
+                                        <div id="tree-nenek" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1">Nenek</span>
+                                    </div>
+                                </div>
+
+                                <!-- Garis Penghubung -->
+                                <div class="w-1 h-6 bg-emerald-600 rounded"></div>
+
+                                <!-- Generasi 2: Ayah & Ibu -->
+                                <div class="text-xs font-extrabold uppercase bg-sky-300 text-slate-900 px-3 py-1 rounded-full">Orang Tua Kita</div>
+                                <div class="flex flex-wrap justify-center gap-4 sm:gap-8">
+                                    <div onclick="speakText('Ayah adalah orang tua laki-laki kita.')" class="cursor-pointer btn-3d bg-white p-3 rounded-2xl border-2 border-sky-400 flex flex-col items-center w-32">
+                                        <div id="tree-ayah" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1">Ayah</span>
+                                    </div>
+                                    <div class="flex items-center text-2xl font-bold text-pink-500">❤️</div>
+                                    <div onclick="speakText('Ibu adalah orang tua perempuan kita.')" class="cursor-pointer btn-3d bg-white p-3 rounded-2xl border-2 border-sky-400 flex flex-col items-center w-32">
+                                        <div id="tree-ibu" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1">Ibu</span>
+                                    </div>
+                                </div>
+
+                                <!-- Garis Penghubung -->
+                                <div class="w-1 h-6 bg-emerald-600 rounded"></div>
+
+                                <!-- Generasi 3: Anak (Kakak, Aku/Rani, Adik) -->
+                                <div class="text-xs font-extrabold uppercase bg-pink-300 text-slate-900 px-3 py-1 rounded-full">Anak-Anak dalam Keluarga</div>
+                                <div class="flex flex-wrap justify-center gap-3 sm:gap-6">
+                                    <div onclick="speakText('Kakak adalah saudara kandung yang usianya lebih tua dari kita.')" class="cursor-pointer btn-3d bg-white p-3 rounded-2xl border-2 border-pink-400 flex flex-col items-center w-32">
+                                        <div id="tree-kakak" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1">Kakak</span>
+                                    </div>
+                                    <div onclick="speakText('Ini adalah Rani, anak yang sedang memperkenalkan keluarganya.')" class="cursor-pointer btn-3d bg-yellow-100 p-3 rounded-2xl border-4 border-amber-400 flex flex-col items-center w-32">
+                                        <div id="tree-aku" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1 text-pink-600">Aku (Rani)</span>
+                                    </div>
+                                    <div onclick="speakText('Adik adalah saudara kandung yang usianya lebih muda dari kita.')" class="cursor-pointer btn-3d bg-white p-3 rounded-2xl border-2 border-pink-400 flex flex-col items-center w-32">
+                                        <div id="tree-adik" class="w-16 h-16"></div>
+                                        <span class="font-title font-bold text-base mt-1">Adik</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KONTEN MATERI 4: KOSAKATA TENTANG KELUARGA -->
+                    <div id="materi-content-4" class="materi-tab-panel hidden">
+                        <div class="bg-amber-50 rounded-3xl p-5 sm:p-6 border-2 border-amber-200">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-amber-700 mb-2">🔤 Materi 4: Kosakata tentang Keluarga</h3>
+                            <p class="text-base font-semibold text-slate-600 mb-4">Ayo belajar mengeja dan mengucapkan kosakata anggota keluarga! Klik tombol speaker untuk mendengarkan.</p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="kosakata-grid">
+                                <!-- Diisi via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KONTEN MATERI 5: MEMBUAT KALIMAT SEDERHANA -->
+                    <div id="materi-content-5" class="materi-tab-panel hidden">
+                        <div class="bg-purple-50 rounded-3xl p-5 sm:p-6 border-2 border-purple-200">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-purple-700 mb-2">💬 Materi 5: Membaca & Membuat Kalimat Sederhana</h3>
+                            <p class="text-base font-semibold text-slate-600 mb-4">Klik setiap kartu kalimat untuk mendengarkan cara membacanya, lalu ikuti dengan suara lantang ya!</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="kalimat-grid">
+                                <!-- Diisi via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigasi Bawah Materi -->
+                    <div class="flex justify-between items-center mt-6 pt-4 border-t-2 border-slate-100">
+                        <button onclick="prevMateriTab()" id="btn-mat-prev" class="btn-3d bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-5 py-2.5 rounded-2xl">⬅️ Sebelumnya</button>
+                        <span id="materi-step-indicator" class="font-title font-bold text-slate-500">Bagian 1 dari 5</span>
+                        <button onclick="nextMateriTab()" id="btn-mat-next" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-2xl">Selanjutnya ➡️</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 3. MENU SIMULASI: AYO KENALI KELUARGA RANI -->
+            <!-- ========================================== -->
+            <section id="page-simulasi" class="hidden animate-pop">
+                <div class="card-3d p-5 sm:p-8">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div>
+                            <span class="bg-sky-500 text-white text-xs font-bold px-3 py-1 rounded-full">Simulasi Interaktif</span>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-sky-600 mt-1">🌳 AYO KENALI KELUARGA RANI!</h2>
+                        </div>
+                        <button onclick="speakText('Ayo kenali keluarga Rani! Klik gambar anggota keluarga pada pohon keluarga atau gunakan tombol berikutnya untuk berkenalan.')" class="btn-3d bg-sky-500 text-white font-bold px-4 py-2 rounded-2xl text-sm">
+                            🔊 Petunjuk Simulasi
+                        </button>
+                    </div>
+
+                    <!-- Area Simulasi Utama -->
+                    <div id="simulasi-main-view" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                        <!-- Kiri: Pohon Keluarga Interaktif (7 kolom) -->
+                        <div class="lg:col-span-7 bg-gradient-to-b from-sky-100 via-emerald-50 to-green-100 p-4 sm:p-6 rounded-3xl border-4 border-sky-300 relative">
+                            <p class="text-center text-sm font-bold text-sky-800 mb-3 bg-white/80 py-1 px-3 rounded-full inline-block mx-auto">👆 Klik gambar anggota keluarga di bawah ini!</p>
+                            
+                            <div class="grid grid-cols-3 gap-3 sm:gap-4" id="simulasi-family-grid">
+                                <!-- Kartu-kartu keluarga Rani diisi via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Kanan: Layar Perkenalan & Kontrol (5 kolom) -->
+                        <div class="lg:col-span-5 bg-amber-50 p-5 sm:p-6 rounded-3xl border-4 border-amber-300 flex flex-col items-center text-center">
+                            <div id="sim-spotlight-avatar" class="w-32 h-32 sm:w-40 sm:h-40 animate-float mb-3"></div>
+                            <div class="bg-white px-5 py-4 rounded-2xl border-2 border-amber-200 w-full shadow-sm mb-4">
+                                <span id="sim-spotlight-role" class="bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">Ayah Rani</span>
+                                <h3 id="sim-spotlight-sentence" class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-2">"Ini adalah ayah Rani."</h3>
+                                <p id="sim-spotlight-detail" class="text-sm font-semibold text-slate-600 mt-1">Namanya Pak Budi. Ayah sangat menyayangi Rani.</p>
+                            </div>
+
+                            <!-- Tombol Dengarkan Kembali -->
+                            <button onclick="repeatSimulasiAudio()" class="btn-3d bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-2.5 rounded-2xl w-full mb-3 flex items-center justify-center gap-2">
+                                <span>🔊</span> Dengarkan Kembali
+                            </button>
+
+                            <!-- Navigasi Sebelumnya / Berikutnya -->
+                            <div class="flex gap-3 w-full">
+                                <button onclick="prevSimulasi()" class="btn-3d bg-sky-400 hover:bg-sky-500 text-white font-bold py-2.5 px-4 rounded-2xl flex-1">⬅️ Sebelumnya</button>
+                                <button onclick="nextSimulasi()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-2xl flex-1">Berikutnya ➡️</button>
+                            </div>
+
+                            <button onclick="startSimulasiQuiz()" class="mt-4 btn-3d bg-purple-500 hover:bg-purple-600 text-white font-bold py-2.5 px-5 rounded-2xl w-full text-sm">
+                                🎯 Lanjut ke Kuis Singkat Simulasi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Kuis Singkat Akhir Simulasi -->
+                    <div id="simulasi-quiz-view" class="hidden bg-purple-50 p-6 rounded-3xl border-4 border-purple-300 mt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-purple-700">🎯 Kuis Singkat: Kenali Keluarga Rani</h3>
+                            <button onclick="backToSimulasiTree()" class="btn-3d bg-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-sm">⬅️ Kembali ke Pohon</button>
+                        </div>
+                        <div id="sim-quiz-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 4. MENU PRAKTIKUM: SUSUN POHON KELUARGA    -->
+            <!-- ========================================== -->
+            <section id="page-praktikum" class="hidden animate-pop">
+                <div class="card-3d p-5 sm:p-8">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div>
+                            <span class="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">Aktivitas Praktikum</span>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">🧩 AYO SUSUN POHON KELUARGA!</h2>
+                        </div>
+                        <button onclick="speakText('Ayo susun pohon keluarga! Pilih mode keluarga, lalu klik atau seret gambar anggota keluarga ke kotak pohon keluarga yang sesuai.')" class="btn-3d bg-emerald-500 text-white font-bold px-4 py-2 rounded-2xl text-sm">
+                            🔊 Petunjuk Praktikum
+                        </button>
+                    </div>
+
+                    <!-- Pilihan Mode Privasi Ramah Anak -->
+                    <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-300 mb-5">
+                        <p class="font-bold text-sm sm:text-base text-slate-800 mb-2">1️⃣ Pilih jenis pohon keluarga yang ingin kamu buat:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setPraktikumMode('rani')" id="prak-mode-rani" class="btn-3d bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm">👧 Contoh Keluarga Rani</button>
+                            <button onclick="setPraktikumMode('fiktif')" id="prak-mode-fiktif" class="btn-3d bg-white text-slate-700 font-bold px-4 py-2 rounded-xl text-sm">🦸 Tokoh Keluarga Fiktif</button>
+                            <button onclick="setPraktikumMode('sendiri')" id="prak-mode-sendiri" class="btn-3d bg-white text-slate-700 font-bold px-4 py-2 rounded-xl text-sm">🏠 Anggota Keluarga Sendiri (Opsional)</button>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">🔒 Catatan Privasi: Kamu bebas menggunakan nama panggilan atau tokoh fiktif. Data tidak dikirim ke internet.</p>
+                    </div>
+
+                    <!-- Bank Gambar Anggota Keluarga (Bisa Drag atau Klik) -->
+                    <div class="bg-sky-50 p-4 rounded-2xl border-2 border-sky-200 mb-5">
+                        <p class="font-bold text-sm text-sky-800 mb-2">2️⃣ Klik (atau seret) gambar di bawah, lalu klik kotak tujuan di Pohon Keluarga:</p>
+                        <div class="flex flex-wrap justify-center gap-3" id="praktikum-bank">
+                            <!-- Diisi via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Area Pohon Keluarga Target -->
+                    <div id="praktikum-tree-area" class="bg-gradient-to-b from-sky-100 to-emerald-100 p-4 sm:p-6 rounded-3xl border-4 border-emerald-300 mb-5">
+                        <h3 class="text-center font-title font-bold text-lg text-emerald-800 mb-4" id="praktikum-tree-title">Pohon Keluarga Rani</h3>
+                        
+                        <!-- Baris 1: Kakek & Nenek -->
+                        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-4">
+                            <div class="prak-slot drop-zone bg-white/90 p-3 rounded-2xl text-center cursor-pointer" data-role="kakek" onclick="placeInSlot('kakek')">
+                                <div class="text-xs font-extrabold text-amber-600 mb-1">Kakek</div>
+                                <div id="slot-img-kakek" class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-100 rounded-xl text-2xl">❓</div>
+                                <input type="text" id="slot-name-kakek" placeholder="Nama Kakek..." onclick="event.stopPropagation()" class="mt-2 w-full text-center text-xs sm:text-sm font-bold border-2 border-slate-200 rounded-lg px-2 py-1 focus:border-emerald-500 outline-none">
+                            </div>
+                            <div class="prak-slot drop-zone bg-white/90 p-3 rounded-2xl text-center cursor-pointer" data-role="nenek" onclick="placeInSlot('nenek')">
+                                <div class="text-xs font-extrabold text-amber-600 mb-1">Nenek</div>
+                                <div id="slot-img-nenek" class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-100 rounded-xl text-2xl">❓</div>
+                                <input type="text" id="slot-name-nenek" placeholder="Nama Nenek..." onclick="event.stopPropagation()" class="mt-2 w-full text-center text-xs sm:text-sm font-bold border-2 border-slate-200 rounded-lg px-2 py-1 focus:border-emerald-500 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Baris 2: Ayah & Ibu -->
+                        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-4">
+                            <div class="prak-slot drop-zone bg-white/90 p-3 rounded-2xl text-center cursor-pointer" data-role="ayah" onclick="placeInSlot('ayah')">
+                                <div class="text-xs font-extrabold text-sky-600 mb-1">Ayah</div>
+                                <div id="slot-img-ayah" class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-100 rounded-xl text-2xl">❓</div>
+                                <input type="text" id="slot-name-ayah" placeholder="Nama Ayah..." onclick="event.stopPropagation()" class="mt-2 w-full text-center text-xs sm:text-sm font-bold border-2 border-slate-200 rounded-lg px-2 py-1 focus:border-emerald-500 outline-none">
+                            </div>
+                            <div class="prak-slot drop-zone bg-white/90 p-3 rounded-2xl text-center cursor-pointer" data-role="ibu" onclick="placeInSlot('ibu')">
+                                <div class="text-xs font-extrabold text-sky-600 mb-1">Ibu</div>
+                                <div id="slot-img-ibu" class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-100 rounded-xl text-2xl">❓</div>
+                                <input type="text" id="slot-name-ibu" placeholder="Nama Ibu..." onclick="event.stopPropagation()" class="mt-2 w-full text-center text-xs sm:text-sm font-bold border-2 border-slate-200 rounded-lg px-2 py-1 focus:border-emerald-500 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Baris 3: Kakak & Adik -->
+                        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                            <div class="prak-slot drop-zone bg-white/90 p-3 rounded-2xl text-center cursor-pointer" data-role="kakak" onclick="placeInSlot('kakak')">
+                                <div class="text-xs font-extrabold text-pink-600 mb-1">Kakak</div>
+                                <div id="slot-img-kakak" class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-100 rounded-xl text-2xl">❓</div>
+                                <input type="text" id="slot-name-kakak" placeholder="Nama Kakak..." onclick="event.stopPropagation()" class="mt-2 w-full text-center text-xs sm:text-sm font-bold border-2 border-slate-200 rounded-lg px-2 py-1 focus:border-emerald-500 outline-none">
+                            </div>
+                            <div class="prak-slot drop-zone bg-white/90 p-3 rounded-2xl text-center cursor-pointer" data-role="adik" onclick="placeInSlot('adik')">
+                                <div class="text-xs font-extrabold text-pink-600 mb-1">Adik</div>
+                                <div id="slot-img-adik" class="w-16 h-16 mx-auto flex items-center justify-center bg-slate-100 rounded-xl text-2xl">❓</div>
+                                <input type="text" id="slot-name-adik" placeholder="Nama Adik..." onclick="event.stopPropagation()" class="mt-2 w-full text-center text-xs sm:text-sm font-bold border-2 border-slate-200 rounded-lg px-2 py-1 focus:border-emerald-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Umpan Balik Praktikum -->
+                    <div id="praktikum-feedback" class="hidden mb-4 p-4 rounded-2xl text-center font-bold text-base sm:text-lg"></div>
+
+                    <!-- Tombol Aksi Praktikum -->
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button onclick="checkPraktikum()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-2xl flex items-center gap-2">
+                            <span>✅</span> PERIKSA
+                        </button>
+                        <button onclick="resetPraktikum()" class="btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-6 py-3 rounded-2xl flex items-center gap-2">
+                            <span>🔄</span> ULANGI
+                        </button>
+                        <button onclick="savePraktikumSession()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-2xl flex items-center gap-2">
+                            <span>💾</span> SIMPAN HASIL
+                        </button>
+                        <button onclick="window.print()" class="btn-3d bg-purple-500 hover:bg-purple-600 text-white font-bold px-6 py-3 rounded-2xl flex items-center gap-2">
+                            <span>🖨️</span> CETAK
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 5. MENU GAME: 3 PERMAINAN EDUKATIF         -->
+            <!-- ========================================== -->
+            <section id="page-game" class="hidden animate-pop">
+                <div class="card-3d p-5 sm:p-8">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                        <div>
+                            <span class="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Arena Bermain & Belajar</span>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">🎮 GAME EDUKATIF KELUARGAKU</h2>
+                        </div>
+                        <div class="bg-amber-100 border-2 border-amber-300 px-4 py-2 rounded-2xl font-bold text-amber-800">
+                            Skor Game Sesi Ini: <span id="game-total-score" class="text-xl font-extrabold">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Pilihan 3 Game -->
+                    <div id="game-selector" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <!-- Game 1 -->
+                        <div class="bg-gradient-to-b from-pink-100 to-white p-5 rounded-3xl border-4 border-pink-300 flex flex-col justify-between text-center">
+                            <div>
+                                <div class="text-6xl mb-3">🕵️‍♀️</div>
+                                <h3 class="text-xl font-extrabold text-pink-600 mb-2">GAME 1: TEBAK SIAPA AKU?</h3>
+                                <p class="text-sm font-semibold text-slate-600 mb-4">Baca petunjuknya dan tebak siapakah anggota keluarga yang dimaksud! (5 Soal)</p>
+                            </div>
+                            <button onclick="startGame(1)" class="btn-3d bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-2xl w-full">▶️ Mainkan Game 1</button>
+                        </div>
+
+                        <!-- Game 2 -->
+                        <div class="bg-gradient-to-b from-sky-100 to-white p-5 rounded-3xl border-4 border-sky-300 flex flex-col justify-between text-center">
+                            <div>
+                                <div class="text-6xl mb-3">🃏</div>
+                                <h3 class="text-xl font-extrabold text-sky-600 mb-2">GAME 2: PASANGKAN KATA & GAMBAR</h3>
+                                <p class="text-sm font-semibold text-slate-600 mb-4">Cocokkan gambar anggota keluarga dengan kata yang tepat! (6 Pasangan)</p>
+                            </div>
+                            <button onclick="startGame(2)" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-2xl w-full">▶️ Mainkan Game 2</button>
+                        </div>
+
+                        <!-- Game 3 -->
+                        <div class="bg-gradient-to-b from-emerald-100 to-white p-5 rounded-3xl border-4 border-emerald-300 flex flex-col justify-between text-center">
+                            <div>
+                                <div class="text-6xl mb-3">🏡</div>
+                                <h3 class="text-xl font-extrabold text-emerald-600 mb-2">GAME 3: PETUALANGAN RUMAH CERIA</h3>
+                                <p class="text-sm font-semibold text-slate-600 mb-4">Jelajahi 5 ruangan rumah dan jawab tantangan di setiap ruangan! (5 Ruangan)</p>
+                            </div>
+                            <button onclick="startGame(3)" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-2xl w-full">▶️ Mainkan Game 3</button>
+                        </div>
+                    </div>
+
+                    <!-- Area Bermain Aktif -->
+                    <div id="game-play-area" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
+                            <button onclick="exitGameToSelector()" class="btn-3d bg-slate-200 text-slate-800 font-bold px-4 py-2 rounded-xl text-sm">⬅️ Pilih Game Lain</button>
+                            <h3 id="active-game-title" class="text-xl font-extrabold text-slate-800">Judul Game</h3>
+                            <span id="active-game-score" class="bg-amber-400 text-slate-900 font-bold px-3 py-1 rounded-xl text-sm">Skor: 0</span>
+                        </div>
+                        <div id="game-canvas-container" class="bg-slate-50 p-5 sm:p-6 rounded-3xl border-2 border-slate-200"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 6. MENU LKPD DIGITAL (SIAP CETAK A4)       -->
+            <!-- ========================================== -->
+            <section id="page-lkpd" class="hidden animate-pop">
+                <div class="card-3d p-5 sm:p-8">
+                    <!-- Bar Tombol Aksi LKPD (Tidak ikut tercetak) -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b-2 border-purple-100 no-print">
+                        <div>
+                            <span class="bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full">Lembar Kerja Peserta Didik</span>
+                            <h2 class="text-2xl font-extrabold text-purple-700 mt-1">📝 LKPD DIGITAL INTERAKTIF</h2>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="fillLKPDWithRani()" class="btn-3d bg-pink-400 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-sm">👧 Isi Contoh Rani</button>
+                            <button onclick="checkLKPD()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-sm">✅ Periksa LKPD</button>
+                            <button onclick="resetLKPD()" class="btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm">🔄 Ulangi</button>
+                            <button onclick="window.print()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold px-4 py-2 rounded-xl text-sm">🖨️ Cetak A4</button>
+                        </div>
+                    </div>
+
+                    <!-- Hasil Skor LKPD -->
+                    <div id="lkpd-result-banner" class="hidden mb-5 p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-center font-bold text-emerald-900 no-print"></div>
+
+                    <!-- Lembar Kertas A4 LKPD -->
+                    <div id="lkpd-printable" class="bg-white border-4 border-slate-300 rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto shadow-inner">
+                        <!-- Kop LKPD -->
+                        <div class="border-b-4 border-purple-500 pb-4 mb-6 text-center">
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-purple-800 uppercase">LEMBAR KERJA PESERTA DIDIK (LKPD)</h3>
+                            <h4 class="text-lg font-bold text-pink-600">AKU MENGENAL KELUARGAKU</h4>
+                            <p class="text-xs text-slate-500 mt-1">Bahasa Indonesia • Fase A • Kelas 1 SD • SDN 3 Kelaten</p>
+                        </div>
+
+                        <!-- Identitas Siswa (Bisa pakai nama panggilan atau tokoh fiktif) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-purple-50 p-4 rounded-2xl border border-purple-200 mb-6 text-sm font-bold">
+                            <div>
+                                <label class="block text-purple-800 mb-1">Nama / Nama Panggilan:</label>
+                                <input type="text" id="lkpd-id-nama" placeholder="Contoh: Rani / Bimo" class="w-full px-3 py-1.5 rounded-lg border border-purple-300">
+                            </div>
+                            <div>
+                                <label class="block text-purple-800 mb-1">Kelas:</label>
+                                <input type="text" id="lkpd-id-kelas" value="1 SD" class="w-full px-3 py-1.5 rounded-lg border border-purple-300">
+                            </div>
+                            <div>
+                                <label class="block text-purple-800 mb-1">Tanggal:</label>
+                                <input type="text" id="lkpd-id-tanggal" class="w-full px-3 py-1.5 rounded-lg border border-purple-300">
+                            </div>
+                        </div>
+
+                        <!-- Aktivitas 1: Menulis Identitas Diri -->
+                        <div class="mb-6">
+                            <h5 class="font-title font-bold text-lg text-pink-600 mb-2">Aktivitas 1: Menulis Identitas Diri (atau Tokoh Pilihanmu)</h5>
+                            <div class="space-y-2.5 bg-pink-50/60 p-4 rounded-2xl border border-pink-200 font-semibold">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>1. Nama saya</span>
+                                    <input type="text" id="lkpd-a1-1" placeholder=".........." class="border-b-2 border-pink-400 bg-transparent px-2 py-0.5 font-bold text-slate-800 outline-none flex-grow max-w-xs">
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>2. Nama panggilan saya</span>
+                                    <input type="text" id="lkpd-a1-2" placeholder=".........." class="border-b-2 border-pink-400 bg-transparent px-2 py-0.5 font-bold text-slate-800 outline-none flex-grow max-w-xs">
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>3. Usia saya</span>
+                                    <input type="text" id="lkpd-a1-3" placeholder=".... tahun" class="border-b-2 border-pink-400 bg-transparent px-2 py-0.5 font-bold text-slate-800 outline-none w-32">
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>4. Saya kelas</span>
+                                    <input type="text" id="lkpd-a1-4" placeholder="1 SD" class="border-b-2 border-pink-400 bg-transparent px-2 py-0.5 font-bold text-slate-800 outline-none w-32">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aktivitas 2: Mengenal Anggota Keluarga (Cocokkan Gambar) -->
+                        <div class="mb-6">
+                            <h5 class="font-title font-bold text-lg text-sky-600 mb-2">Aktivitas 2: Mengenal Anggota Keluarga (Pilih Kata yang Tepat)</h5>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+                                    <div id="lkpd-img-1" class="w-16 h-16 mx-auto mb-2"></div>
+                                    <select id="lkpd-a2-1" class="w-full p-1.5 rounded-lg border border-sky-300 font-bold text-sm">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Ayah">Ayah</option>
+                                        <option value="Ibu">Ibu</option>
+                                        <option value="Kakek">Kakek</option>
+                                        <option value="Nenek">Nenek</option>
+                                    </select>
+                                </div>
+                                <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+                                    <div id="lkpd-img-2" class="w-16 h-16 mx-auto mb-2"></div>
+                                    <select id="lkpd-a2-2" class="w-full p-1.5 rounded-lg border border-sky-300 font-bold text-sm">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Ayah">Ayah</option>
+                                        <option value="Ibu">Ibu</option>
+                                        <option value="Kakek">Kakek</option>
+                                        <option value="Nenek">Nenek</option>
+                                    </select>
+                                </div>
+                                <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+                                    <div id="lkpd-img-3" class="w-16 h-16 mx-auto mb-2"></div>
+                                    <select id="lkpd-a2-3" class="w-full p-1.5 rounded-lg border border-sky-300 font-bold text-sm">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Ayah">Ayah</option>
+                                        <option value="Ibu">Ibu</option>
+                                        <option value="Kakek">Kakek</option>
+                                        <option value="Nenek">Nenek</option>
+                                    </select>
+                                </div>
+                                <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+                                    <div id="lkpd-img-4" class="w-16 h-16 mx-auto mb-2"></div>
+                                    <select id="lkpd-a2-4" class="w-full p-1.5 rounded-lg border border-sky-300 font-bold text-sm">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Ayah">Ayah</option>
+                                        <option value="Ibu">Ibu</option>
+                                        <option value="Kakek">Kakek</option>
+                                        <option value="Nenek">Nenek</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aktivitas 3: Melengkapi Kata -->
+                        <div class="mb-6">
+                            <h5 class="font-title font-bold text-lg text-emerald-600 mb-2">Aktivitas 3: Melengkapi Huruf yang Hilang</h5>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-emerald-50 p-4 rounded-2xl border border-emerald-200 font-extrabold text-lg">
+                                <div class="flex items-center justify-center gap-1 bg-white p-2 rounded-xl">
+                                    <span>A</span>
+                                    <input type="text" id="lkpd-a3-1" maxlength="1" class="w-8 h-8 text-center border-2 border-emerald-400 rounded uppercase" placeholder="_">
+                                    <span>A H</span>
+                                    <span class="text-xs text-slate-400 ml-2">(AYAH)</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-1 bg-white p-2 rounded-xl">
+                                    <span>I B</span>
+                                    <input type="text" id="lkpd-a3-2" maxlength="1" class="w-8 h-8 text-center border-2 border-emerald-400 rounded uppercase" placeholder="_">
+                                    <span class="text-xs text-slate-400 ml-2">(IBU)</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-1 bg-white p-2 rounded-xl">
+                                    <span>K A</span>
+                                    <input type="text" id="lkpd-a3-3" maxlength="1" class="w-8 h-8 text-center border-2 border-emerald-400 rounded uppercase" placeholder="_">
+                                    <span>E K</span>
+                                    <span class="text-xs text-slate-400 ml-2">(KAKEK)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aktivitas 4: Menyusun Kalimat -->
+                        <div class="mb-6">
+                            <h5 class="font-title font-bold text-lg text-amber-600 mb-2">Aktivitas 4: Menyusun Kata Menjadi Kalimat</h5>
+                            <div class="space-y-3 bg-amber-50 p-4 rounded-2xl border border-amber-200 text-sm sm:text-base">
+                                <div>
+                                    <p class="font-bold text-slate-700 mb-1">1. Susun kata: <span class="bg-white px-2 py-0.5 rounded border">Aku – keluarga – menyayangi – ku</span></p>
+                                    <input type="text" id="lkpd-a4-1" placeholder="Tulis kalimat yang benar di sini..." class="w-full px-3 py-1.5 rounded-xl border border-amber-300 font-bold">
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-700 mb-1">2. Susun kata: <span class="bg-white px-2 py-0.5 rounded border">Ini – ibu – saya</span></p>
+                                    <input type="text" id="lkpd-a4-2" placeholder="Tulis kalimat yang benar di sini..." class="w-full px-3 py-1.5 rounded-xl border border-amber-300 font-bold">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aktivitas 5: Bercerita -->
+                        <div>
+                            <h5 class="font-title font-bold text-lg text-purple-600 mb-2">Aktivitas 5: Bercerita Tentang Keluargaku</h5>
+                            <div class="space-y-2.5 bg-purple-50 p-4 rounded-2xl border border-purple-200 font-semibold">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>"Nama saya</span>
+                                    <input type="text" id="lkpd-a5-1" placeholder="Rani" class="border-b-2 border-purple-400 bg-transparent px-2 font-bold outline-none w-40">
+                                    <span>."</span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>"Saya tinggal bersama</span>
+                                    <input type="text" id="lkpd-a5-2" placeholder="ayah, ibu, dan adik" class="border-b-2 border-purple-400 bg-transparent px-2 font-bold outline-none flex-grow max-w-sm">
+                                    <span>."</span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>"Saya menyayangi</span>
+                                    <input type="text" id="lkpd-a5-3" placeholder="keluargaku" class="border-b-2 border-purple-400 bg-transparent px-2 font-bold outline-none flex-grow max-w-sm">
+                                    <span>."</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 7. MENU EVALUASI (10 PG + 5 ISIAN)         -->
+            <!-- ========================================== -->
+            <section id="page-evaluasi" class="hidden animate-pop">
+                <div class="card-3d p-5 sm:p-8 max-w-4xl mx-auto">
+                    <!-- Layar Awal Evaluasi -->
+                    <div id="eval-intro" class="text-center py-4">
+                        <div class="text-6xl mb-3">🏆</div>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-rose-600 mb-2">EVALUASI AKHIR PEMBELAJARAN</h2>
+                        <p class="text-base sm:text-lg font-semibold text-slate-600 max-w-xl mx-auto mb-6">
+                            Ayo uji pemahamanmu tentang Identitas Keluargaku! Terdiri dari <strong>10 soal pilihan ganda</strong> dan <strong>5 soal isian singkat</strong>.
+                        </p>
+                        <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 max-w-md mx-auto mb-6 text-left text-sm font-bold text-slate-700 space-y-1">
+                            <p>📌 Kerjakan soal satu per satu dengan teliti.</p>
+                            <p>🔊 Kamu bisa menekan tombol speaker untuk mendengarkan soal.</p>
+                            <p>⭐ Nilai akhir dan predikat akan muncul otomatis di akhir!</p>
+                        </div>
+                        <button onclick="startEvaluasi()" class="btn-3d bg-gradient-to-r from-rose-500 to-pink-600 text-white font-title font-extrabold text-xl px-8 py-4 rounded-full shadow-lg">
+                            🚀 MULAI EVALUASI SEKARANG
+                        </button>
+                    </div>
+
+                    <!-- Layar Pengerjaan Soal Satu per Satu -->
+                    <div id="eval-question-screen" class="hidden">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b-2 border-slate-100">
+                            <span id="eval-q-badge" class="bg-rose-500 text-white font-bold px-4 py-1.5 rounded-full text-sm">Soal 1 dari 15</span>
+                            <button onclick="speakCurrentEvalQuestion()" class="btn-3d bg-sky-500 text-white font-bold px-4 py-1.5 rounded-full text-sm flex items-center gap-1">
+                                <span>🔊</span> Bacakan Soal
+                            </button>
+                        </div>
+
+                        <!-- Progress Bar Evaluasi -->
+                        <div class="w-full bg-slate-200 h-3 rounded-full mb-6 overflow-hidden">
+                            <div id="eval-progress-bar" class="bg-rose-500 h-full transition-all duration-300" style="width: 6.6%"></div>
+                        </div>
+
+                        <!-- Kotak Pertanyaan -->
+                        <div class="bg-sky-50 border-2 border-sky-200 rounded-3xl p-5 sm:p-6 mb-6">
+                            <p id="eval-q-type" class="text-xs font-extrabold uppercase text-sky-600 mb-1">Pilihan Ganda</p>
+                            <h3 id="eval-q-text" class="text-xl sm:text-2xl font-extrabold text-slate-800 leading-snug">Pertanyaan muncul di sini</h3>
+                        </div>
+
+                        <!-- Pilihan Jawaban (Untuk PG) -->
+                        <div id="eval-options-container" class="space-y-3 mb-6"></div>
+
+                        <!-- Kolom Jawaban (Untuk Isian Singkat) -->
+                        <div id="eval-fill-container" class="hidden mb-6">
+                            <label class="block font-bold text-slate-700 mb-2">Ketik jawabanmu dengan huruf yang benar:</label>
+                            <input type="text" id="eval-fill-input" placeholder="Tulis jawaban di sini..." class="w-full text-xl font-extrabold p-4 rounded-2xl border-4 border-sky-300 focus:border-rose-500 outline-none">
+                        </div>
+
+                        <!-- Navigasi Soal Evaluasi -->
+                        <div class="flex justify-between items-center">
+                            <button onclick="prevEvalQuestion()" id="btn-eval-prev" class="btn-3d bg-slate-200 text-slate-800 font-bold px-5 py-3 rounded-2xl">⬅️ Sebelumnya</button>
+                            <button onclick="nextEvalQuestion()" id="btn-eval-next" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-2xl">Selanjutnya ➡️</button>
+                        </div>
+                    </div>
+
+                    <!-- Layar Hasil Evaluasi -->
+                    <div id="eval-result-screen" class="hidden text-center py-4">
+                        <div class="text-6xl mb-2">🎉</div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-1">HASIL EVALUASI BELAJARMU</h2>
+                        <p id="eval-predikat" class="inline-block bg-amber-300 text-slate-900 font-title font-extrabold px-5 py-1.5 rounded-full text-lg my-2">Sangat Baik!</p>
+
+                        <!-- Kartu Nilai Akhir -->
+                        <div class="my-5 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-3xl p-6 max-w-sm mx-auto shadow-xl">
+                            <p class="text-sm font-bold uppercase tracking-wider opacity-90">Nilai Akhir Kamu</p>
+                            <div id="eval-final-score" class="text-6xl font-title font-extrabold my-1">100</div>
+                            <div class="flex justify-center gap-6 mt-3 pt-3 border-t border-white/25 text-sm font-bold">
+                                <span>✅ Benar: <strong id="eval-correct-count">15</strong></span>
+                                <span>❌ Salah: <strong id="eval-wrong-count">0</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Pesan Motivasi -->
+                        <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-4 max-w-xl mx-auto mb-6">
+                            <p id="eval-motivation" class="font-bold text-slate-700 text-base sm:text-lg">Hebat sekali! Kamu sudah mengenal identitas diri dan anggota keluarga dengan sangat baik!</p>
+                        </div>
+
+                        <!-- Review Singkat Jawaban -->
+                        <div id="eval-review-list" class="text-left max-w-2xl mx-auto mb-6 space-y-2 max-h-64 overflow-y-auto p-3 bg-slate-50 rounded-2xl border"></div>
+
+                        <div class="flex flex-wrap justify-center gap-3">
+                            <button onclick="resetEvaluasi()" class="btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-6 py-3 rounded-2xl">🔄 Ulangi Evaluasi</button>
+                            <button onclick="goHome()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-2xl">🏠 Kembali ke Menu Utama</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 8. MENU PROFIL PENGEMBANG                  -->
+            <!-- ========================================== -->
+            <section id="page-pengembang" class="hidden animate-pop">
+                <div class="card-3d p-6 sm:p-10 max-w-3xl mx-auto bg-gradient-to-br from-white via-pink-50 to-sky-50">
+                    <div class="text-center mb-6">
+                        <span class="bg-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">Profil Pengembang Media</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-2">TENTANG PENGEMBANG MPI</h2>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center gap-6 bg-white p-6 rounded-3xl border-4 border-pink-200 shadow-md mb-6">
+                        <!-- Ilustrasi Guru Perempuan Berhijab 3D Cartoon SVG -->
+                        <div class="flex flex-col items-center flex-shrink-0">
+                            <div id="avatar-developer" class="w-36 h-36 sm:w-44 sm:h-44 animate-float"></div>
+                            <span class="bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full mt-2">Guru SD & Pengembang</span>
+                        </div>
+
+                        <!-- Biodata Pengembang -->
+                        <div class="space-y-2.5 text-sm sm:text-base w-full">
+                            <div class="bg-sky-50 p-3 rounded-2xl">
+                                <span class="text-xs font-bold text-sky-600 block">Nama Pengembang</span>
+                                <strong class="text-lg text-slate-800">Syifa Lutfiana Pangestu, S.Pd.</strong>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div class="bg-pink-50 p-3 rounded-2xl">
+                                    <span class="text-xs font-bold text-pink-600 block">Instansi</span>
+                                    <strong class="text-slate-800">SDN 3 Kelaten</strong>
+                                </div>
+                                <div class="bg-amber-50 p-3 rounded-2xl">
+                                    <span class="text-xs font-bold text-amber-600 block">Jabatan</span>
+                                    <strong class="text-slate-800">Guru Sekolah Dasar</strong>
+                                </div>
+                            </div>
+                            <div class="bg-emerald-50 p-3 rounded-2xl">
+                                <span class="text-xs font-bold text-emerald-600 block">Mata Pelajaran & Judul MPI</span>
+                                <strong class="text-slate-800">Bahasa Indonesia • Petualangan Keluargaku – Aku dan Identitas Keluargaku</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deskripsi Media -->
+                    <div class="bg-white/90 p-5 rounded-3xl border-2 border-sky-200 mb-5">
+                        <p class="text-slate-700 font-semibold leading-relaxed text-sm sm:text-base">
+                            "Media Pembelajaran Interaktif ini dikembangkan untuk membantu peserta didik kelas 1 SD mengenal identitas diri dan anggota keluarga melalui kegiatan menyimak, membaca, berbicara, dan menulis sederhana. Pembelajaran dikemas secara menarik melalui ilustrasi, audio, simulasi, dan permainan edukatif."
+                        </p>
+                    </div>
+
+                    <!-- Kalimat Penutup -->
+                    <div class="bg-gradient-to-r from-amber-300 via-yellow-300 to-amber-300 p-4 rounded-2xl text-center shadow-sm">
+                        <p class="font-title font-extrabold text-slate-900 text-base sm:text-lg">
+                            💖 "Setiap keluarga memiliki cerita yang istimewa. Mari saling menghargai dan menyayangi!" 💖
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button onclick="speakText('Media Pembelajaran Interaktif ini dikembangkan oleh Ibu Syifa Lutfiana Pangestu, S.Pd. dari S D N 3 Kelaten. Setiap keluarga memiliki cerita yang istimewa. Mari saling menghargai dan menyayangi!')" class="btn-3d bg-pink-500 text-white font-bold px-5 py-2.5 rounded-2xl text-sm">
+                            🔊 Dengarkan Pesan Pengembang
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL PETUNJUK PENGGUNAAN                  -->
+    <!-- ========================================== -->
+    <div id="help-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl border-4 border-sky-400 max-w-lg w-full p-6 animate-pop shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-extrabold text-sky-600 flex items-center gap-2"><span>💡</span> Petunjuk Belajar</h3>
+                <button onclick="closeHelpModal()" class="bg-rose-100 hover:bg-rose-200 text-rose-600 font-bold w-9 h-9 rounded-full">✕</button>
+            </div>
+            <div class="space-y-3 text-sm sm:text-base font-semibold text-slate-700 mb-6">
+                <div class="flex items-start gap-3 bg-pink-50 p-3 rounded-2xl">
+                    <span class="text-2xl">👆</span>
+                    <p>Klik tombol warna-warni besar untuk membuka <strong>Materi, Simulasi, Praktikum, Game, LKPD,</strong> dan <strong>Evaluasi</strong>.</p>
+                </div>
+                <div class="flex items-start gap-3 bg-sky-50 p-3 rounded-2xl">
+                    <span class="text-2xl">🔊</span>
+                    <p>Tekan tombol <strong>Speaker</strong> kapan saja untuk mendengarkan suara narator Nisa dan Bimo.</p>
+                </div>
+                <div class="flex items-start gap-3 bg-amber-50 p-3 rounded-2xl">
+                    <span class="text-2xl">⭐</span>
+                    <p>Selesaikan setiap kegiatan untuk mengumpulkan <strong>Bintang Prestasi</strong>!</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="speakText('Petunjuk belajar. Klik tombol warna warni untuk membuka materi, simulasi, praktikum, game, L K P D, dan evaluasi. Tekan tombol speaker untuk mendengarkan suara pemandu.')" class="btn-3d bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-2xl flex-1">🔊 Dengarkan</button>
+                <button onclick="closeHelpModal()" class="btn-3d bg-sky-500 text-white font-bold py-2.5 px-4 rounded-2xl flex-1">👍 Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL KONFIRMASI KELUAR EVALUASI           -->
+    <!-- ========================================== -->
+    <div id="confirm-exit-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl border-4 border-amber-400 max-w-md w-full p-6 text-center animate-pop shadow-2xl">
+            <div class="text-5xl mb-3">🤔</div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">Keluar dari Evaluasi?</h3>
+            <p class="text-sm font-semibold text-slate-600 mb-6">Kamu sedang mengerjakan soal evaluasi. Jika keluar sekarang, jawabanmu belum tersimpan sebagai nilai akhir.</p>
+            <div class="flex gap-3">
+                <button onclick="cancelExitEvaluasi()" class="btn-3d bg-emerald-500 text-white font-bold py-3 px-4 rounded-2xl flex-1">Lanjut Mengerjakan</button>
+                <button onclick="confirmExitEvaluasi()" class="btn-3d bg-rose-500 text-white font-bold py-3 px-4 rounded-2xl flex-1">Ya, Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TOAST NOTIFIKASI UMPAN BALIK RAMAH ANAK    -->
+    <!-- ========================================== -->
+    <div id="toast-box" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white px-6 py-3 rounded-full shadow-xl font-bold text-sm sm:text-base flex items-center gap-2 animate-pop">
+        <span id="toast-icon">🌟</span>
+        <span id="toast-msg">Hebat sekali!</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SCRIPT LOGIKA UTAMA APLIKASI MPI           -->
+    <!-- ========================================== -->
+    <script>
+        /* =========================================================================
+           1. ASET ILUSTRASI SVG 3D CARTOON LOKAL (RAMAH ANAK & BEBAS EKSTERNAL URL)
+           ========================================================================= */
+        const SVGs = {
+            nisa: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <defs>
+                    <radialGradient id="skinGrad" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#FFE4C4"/><stop offset="100%" stop-color="#F5CBA7"/></radialGradient>
+                    <linearGradient id="hijabGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#E2E8F0"/></linearGradient>
+                    <linearGradient id="uniformRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#F43F5E"/><stop offset="100%" stop-color="#BE123C"/></linearGradient>
+                </defs>
+                <!-- Hijab Putih SD -->
+                <path d="M25 55 C25 22, 95 22, 95 55 L102 98 C80 108, 40 108, 18 98 Z" fill="url(#hijabGrad)" stroke="#CBD5E1" stroke-width="2"/>
+                <!-- Seragam Merah Putih -->
+                <path d="M32 95 Q60 112 88 95 L94 118 L26 118 Z" fill="url(#uniformRed)"/>
+                <path d="M35 88 Q60 104 85 88 L88 98 Q60 110 32 98 Z" fill="#FFFFFF"/>
+                <!-- Wajah Bulat 3D -->
+                <circle cx="60" cy="56" r="24" fill="url(#skinGrad)"/>
+                <!-- Pipi Merona -->
+                <ellipse cx="45" cy="61" rx="4.5" ry="2.5" fill="#FDA4AF" opacity="0.8"/>
+                <ellipse cx="75" cy="61" rx="4.5" ry="2.5" fill="#FDA4AF" opacity="0.8"/>
+                <!-- Mata Berbinar -->
+                <circle cx="51" cy="53" r="3.5" fill="#1E293B"/><circle cx="52" cy="52" r="1.2" fill="#FFF"/>
+                <circle cx="69" cy="53" r="3.5" fill="#1E293B"/><circle cx="70" cy="52" r="1.2" fill="#FFF"/>
+                <!-- Senyum Ceria -->
+                <path d="M53 64 Q60 72 67 64" fill="none" stroke="#E11D48" stroke-width="3" stroke-linecap="round"/>
+                <!-- Pita Pink di Hijab -->
+                <circle cx="84" cy="36" r="5" fill="#FB7185"/>
+            </svg>`,
+
+            bimo: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <defs>
+                    <radialGradient id="skinBimo" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#FDE68A"/><stop offset="100%" stop-color="#EAB308" stop-opacity="0.35"/></radialGradient>
+                </defs>
+                <!-- Seragam SD Putih Merah -->
+                <path d="M30 92 Q60 105 90 92 L96 118 L24 118 Z" fill="#E11D48"/>
+                <path d="M34 86 L86 86 L90 98 L30 98 Z" fill="#FFFFFF"/>
+                <!-- Leher -->
+                <rect x="52" y="75" width="16" height="14" rx="6" fill="#F5CBA7"/>
+                <!-- Rambut Hitam Rapih -->
+                <path d="M34 52 C32 24, 88 24, 86 52 C82 38, 38 38, 34 52 Z" fill="#1E293B"/>
+                <!-- Wajah -->
+                <circle cx="60" cy="56" r="24" fill="#F5CBA7"/>
+                <path d="M36 48 Q60 32 84 48 Q75 26 60 26 Q45 26 36 48 Z" fill="#1E293B"/>
+                <!-- Pipi & Mata -->
+                <ellipse cx="45" cy="61" rx="4" ry="2.2" fill="#FDA4AF" opacity="0.7"/>
+                <ellipse cx="75" cy="61" rx="4" ry="2.2" fill="#FDA4AF" opacity="0.7"/>
+                <circle cx="51" cy="54" r="3.5" fill="#1E293B"/><circle cx="52" cy="53" r="1.2" fill="#FFF"/>
+                <circle cx="69" cy="54" r="3.5" fill="#1E293B"/><circle cx="70" cy="53" r="1.2" fill="#FFF"/>
+                <!-- Senyum Lebar -->
+                <path d="M52 64 Q60 73 68 64 Z" fill="#FFF" stroke="#E11D48" stroke-width="2"/>
+            </svg>`,
+
+            ayah: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <path d="M26 92 Q60 108 94 92 L100 118 L20 118 Z" fill="#0284C7"/>
+                <path d="M48 86 L60 102 L72 86 Z" fill="#FFFFFF"/>
+                <rect x="51" y="74" width="18" height="14" rx="6" fill="#F5CBA7"/>
+                <circle cx="60" cy="54" r="25" fill="#F5CBA7"/>
+                <path d="M35 48 C34 20, 86 20, 85 48 C78 34, 42 34, 35 48 Z" fill="#334155"/>
+                <!-- Kacamata Ayah -->
+                <rect x="42" y="48" width="14" height="10" rx="3" fill="none" stroke="#1E293B" stroke-width="2.5"/>
+                <rect x="64" y="48" width="14" height="10" rx="3" fill="none" stroke="#1E293B" stroke-width="2.5"/>
+                <line x1="56" y1="53" x2="64" y2="53" stroke="#1E293B" stroke-width="2.5"/>
+                <circle cx="49" cy="53" r="2.5" fill="#1E293B"/>
+                <circle cx="71" cy="53" r="2.5" fill="#1E293B"/>
+                <path d="M52 65 Q60 72 68 65" fill="none" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+            </svg>`,
+
+            ibu: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <path d="M22 56 C22 18, 98 18, 98 56 L104 106 C80 114, 40 114, 16 106 Z" fill="#F472B6"/>
+                <path d="M30 94 Q60 110 90 94 L95 118 L25 118 Z" fill="#DB2777"/>
+                <circle cx="60" cy="56" r="24" fill="#FFE4C4"/>
+                <ellipse cx="45" cy="61" rx="4.5" ry="2.5" fill="#FDA4AF"/>
+                <ellipse cx="75" cy="61" rx="4.5" ry="2.5" fill="#FDA4AF"/>
+                <circle cx="51" cy="53" r="3.5" fill="#1E293B"/><circle cx="52" cy="52" r="1.2" fill="#FFF"/>
+                <circle cx="69" cy="53" r="3.5" fill="#1E293B"/><circle cx="70" cy="52" r="1.2" fill="#FFF"/>
+                <path d="M52 64 Q60 72 68 64" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round"/>
+            </svg>`,
+
+            kakak: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <path d="M28 92 Q60 106 92 92 L98 118 L22 118 Z" fill="#10B981"/>
+                <circle cx="60" cy="55" r="24" fill="#F5CBA7"/>
+                <path d="M34 50 C34 22, 86 22, 86 50 Q60 32 34 50 Z" fill="#0F172A"/>
+                <circle cx="51" cy="53" r="3.5" fill="#1E293B"/><circle cx="52" cy="52" r="1.2" fill="#FFF"/>
+                <circle cx="69" cy="53" r="3.5" fill="#1E293B"/><circle cx="70" cy="52" r="1.2" fill="#FFF"/>
+                <path d="M52 64 Q60 72 68 64" fill="none" stroke="#B45309" stroke-width="3" stroke-linecap="round"/>
+            </svg>`,
+
+            adik: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <path d="M34 94 Q60 106 86 94 L90 118 L30 118 Z" fill="#FACC15"/>
+                <circle cx="60" cy="60" r="22" fill="#FFE4C4"/>
+                <!-- Jambul Lucu Adik -->
+                <path d="M54 38 Q60 24 66 38" fill="none" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+                <ellipse cx="46" cy="64" rx="4" ry="2.5" fill="#FDA4AF"/>
+                <ellipse cx="74" cy="64" rx="4" ry="2.5" fill="#FDA4AF"/>
+                <circle cx="52" cy="58" r="3.5" fill="#1E293B"/><circle cx="53" cy="57" r="1.2" fill="#FFF"/>
+                <circle cx="68" cy="58" r="3.5" fill="#1E293B"/><circle cx="69" cy="57" r="1.2" fill="#FFF"/>
+                <circle cx="60" cy="68" r="4" fill="#FB7185"/>
+            </svg>`,
+
+            kakek: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <path d="M26 92 Q60 108 94 92 L100 118 L20 118 Z" fill="#8B5CF6"/>
+                <circle cx="60" cy="54" r="25" fill="#F5CBA7"/>
+                <!-- Rambut Putih Kakek -->
+                <path d="M34 50 C34 26, 48 28, 46 46 Z" fill="#E2E8F0"/>
+                <path d="M86 50 C86 26, 72 28, 74 46 Z" fill="#E2E8F0"/>
+                <!-- Kumis Putih -->
+                <path d="M48 63 Q60 59 72 63" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="50" cy="52" r="3" fill="#1E293B"/>
+                <circle cx="70" cy="52" r="3" fill="#1E293B"/>
+                <path d="M54 69 Q60 74 66 69" fill="none" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>`,
+
+            nenek: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <!-- Sanggul Nenek -->
+                <circle cx="60" cy="24" r="12" fill="#CBD5E1"/>
+                <path d="M26 92 Q60 108 94 92 L100 118 L20 118 Z" fill="#EC4899"/>
+                <circle cx="60" cy="55" r="24" fill="#FFE4C4"/>
+                <path d="M35 50 C35 24, 85 24, 85 50 Q60 36 35 50 Z" fill="#E2E8F0"/>
+                <circle cx="51" cy="54" r="3" fill="#1E293B"/>
+                <circle cx="69" cy="54" r="3" fill="#1E293B"/>
+                <path d="M52 65 Q60 72 68 65" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round"/>
+            </svg>`,
+
+            guru: `<svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
+                <!-- Hijab Pastel Guru -->
+                <path d="M22 55 C22 16, 98 16, 98 55 L105 106 C80 115, 40 115, 15 106 Z" fill="#F9A8D4"/>
+                <!-- Blazer Guru -->
+                <path d="M28 94 Q60 110 92 94 L98 118 L22 118 Z" fill="#0284C7"/>
+                <path d="M46 92 L60 112 L74 92 Z" fill="#FFFFFF"/>
+                <circle cx="60" cy="56" r="24" fill="#FFE4C4"/>
+                <!-- Kacamata Ramah -->
+                <circle cx="50" cy="53" r="7" fill="none" stroke="#334155" stroke-width="2"/>
+                <circle cx="70" cy="53" r="7" fill="none" stroke="#334155" stroke-width="2"/>
+                <line x1="57" y1="53" x2="63" y2="53" stroke="#334155" stroke-width="2"/>
+                <circle cx="50" cy="53" r="2.8" fill="#1E293B"/>
+                <circle cx="70" cy="53" r="2.8" fill="#1E293B"/>
+                <ellipse cx="44" cy="61" rx="4" ry="2" fill="#FDA4AF"/>
+                <ellipse cx="76" cy="61" rx="4" ry="2" fill="#FDA4AF"/>
+                <path d="M52 64 Q60 72 68 64" fill="none" stroke="#BE185D" stroke-width="3" stroke-linecap="round"/>
+            </svg>`
+        };
+
+        /* =========================================================================
+           2. DATA KONTEN PEMBELAJARAN (MATERI, SIMULASI, GAME, EVALUASI)
+           ========================================================================= */
+        const FAMILY_MEMBERS = [
+            { id: 'ayah', name: 'Ayah', role: 'Ayah Rani', desc: 'Ayah adalah orang tua laki-laki dalam keluarga. Ayah bekerja dan melindungi keluarga.', raniText: 'Ini adalah ayah Rani.', raniDetail: 'Namanya Pak Budi. Ayah sangat menyayangi Rani.', syll: 'A - yah', example: 'Ayah membaca koran.' },
+            { id: 'ibu', name: 'Ibu', role: 'Ibu Rani', desc: 'Ibu adalah orang tua perempuan dalam keluarga. Ibu merawat dan menyayangi kita.', raniText: 'Ini adalah ibu Rani.', raniDetail: 'Namanya Bu Sari. Ibu pandai memasak makanan lezat.', syll: 'I - bu', example: 'Ibu memasak di dapur.' },
+            { id: 'kakak', name: 'Kakak', role: 'Kakak Rani', desc: 'Kakak adalah saudara kandung yang usianya lebih tua dari kita.', raniText: 'Ini adalah kakak Rani.', raniDetail: 'Namanya Kak Dimas. Kakak suka membantu Rani belajar.', syll: 'Ka - kak', example: 'Kakak bermain sepeda.' },
+            { id: 'adik', name: 'Adik', role: 'Adik Rani', desc: 'Adik adalah saudara kandung yang usianya lebih muda dari kita.', raniText: 'Ini adalah adik Rani.', raniDetail: 'Namanya Dek Rara. Adik masih kecil dan sangat lucu.', syll: 'A - dik', example: 'Adik bermain boneka.' },
+            { id: 'kakek', name: 'Kakek', role: 'Kakek Rani', desc: 'Kakek adalah ayah dari ayah atau ibu kita.', raniText: 'Ini adalah kakek Rani.', raniDetail: 'Kakek suka bercerita kisah-kisah yang seru.', syll: 'Ka - kek', example: 'Kakek menyiram bunga.' },
+            { id: 'nenek', name: 'Nenek', role: 'Nenek Rani', desc: 'Nenek adalah ibu dari ayah atau ibu kita.', raniText: 'Ini adalah nenek Rani.', raniDetail: 'Nenek sangat ramah dan suka membuat kue.', syll: 'Ne - nek', example: 'Nenek membuat kue manis.' }
+        ];
+
+        const VOCABULARY_EXTRA = [
+            ...FAMILY_MEMBERS,
+            { id: 'nisa', name: 'Keluarga', syll: 'Ke - lu - ar - ga', example: 'Aku menyayangi keluargaku.' },
+            { id: 'bimo', name: 'Identitas', syll: 'I - den - ti - tas', example: 'Nama dan usia adalah identitas.' }
+        ];
+
+        const SIMPLE_SENTENCES = [
+            { text: 'Namaku Rani.', icon: '👧', hint: 'Kalimat memperkenalkan nama diri' },
+            { text: 'Aku mempunyai keluarga.', icon: '🏡', hint: 'Kalimat menyatakan memiliki keluarga' },
+            { text: 'Ini ayahku.', icon: '👨', hint: 'Kalimat memperkenalkan ayah' },
+            { text: 'Ini ibuku.', icon: '👩', hint: 'Kalimat memperkenalkan ibu' },
+            { text: 'Aku mempunyai seorang adik.', icon: '👶', hint: 'Kalimat menceritakan adik' },
+            { text: 'Aku menyayangi keluargaku.', icon: '❤️', hint: 'Kalimat ungkapan kasih sayang' }
+        ];
+
+        const EVAL_QUESTIONS = [
+            // 10 Soal Pilihan Ganda
+            { type: 'pg', q: '1. Orang tua perempuan dalam keluarga disebut ....', options: ['A. Ayah', 'B. Ibu', 'C. Kakek'], answer: 'B. Ibu' },
+            { type: 'pg', q: '2. Orang tua laki-laki dalam keluarga disebut ....', options: ['A. Ayah', 'B. Nenek', 'C. Adik'], answer: 'A. Ayah' },
+            { type: 'pg', q: '3. Ibu dari ayah atau ibu kita disebut ....', options: ['A. Kakak', 'B. Nenek', 'C. Adik'], answer: 'B. Nenek' },
+            { type: 'pg', q: '4. Ayah dari ayah atau ibu kita disebut ....', options: ['A. Kakek', 'B. Kakak', 'C. Adik'], answer: 'A. Kakek' },
+            { type: 'pg', q: '5. Saudara kandung yang usianya lebih tua dari kita disebut ....', options: ['A. Adik', 'B. Ibu', 'C. Kakak'], answer: 'C. Kakak' },
+            { type: 'pg', q: '6. Saudara kandung yang usianya lebih muda dari kita disebut ....', options: ['A. Adik', 'B. Kakak', 'C. Kakek'], answer: 'A. Adik' },
+            { type: 'pg', q: '7. Nama lengkap, nama panggilan, usia, dan sekolah termasuk ....', options: ['A. Mainan kesukaan', 'B. Identitas diri', 'C. Makanan sehat'], answer: 'B. Identitas diri' },
+            { type: 'pg', q: '8. Rani berusia 7 tahun. Sekarang Rani duduk di kelas ....', options: ['A. 1 SD', 'B. 4 SD', 'C. 6 SD'], answer: 'A. 1 SD' },
+            { type: 'pg', q: '9. Kalimat perkenalan nama yang tepat adalah ....', options: ['A. Ini ayahku.', 'B. Namaku Rani.', 'C. Aku suka apel.'], answer: 'B. Namaku Rani.' },
+            { type: 'pg', q: '10. Sikap yang baik terhadap anggota keluarga adalah saling ....', options: ['A. Bertengkar', 'B. Menyayangi', 'C. Mengejek'], answer: 'B. Menyayangi' },
+            // 5 Soal Isian Singkat
+            { type: 'isian', q: '11. Orang tua perempuan disebut ....', answer: 'ibu' },
+            { type: 'isian', q: '12. Orang tua laki-laki disebut ....', answer: 'ayah' },
+            { type: 'isian', q: '13. Saudara kandung yang lebih muda disebut ....', answer: 'adik' },
+            { type: 'isian', q: '14. Ayah dari ayah atau ibu disebut ....', answer: 'kakek' },
+            { type: 'isian', q: '15. Lengkapi kalimat: Aku menyayangi ....', answer: 'keluarga' } // menerima keluarga / keluargaku
+        ];
+
+        /* =========================================================================
+           3. STATE APLIKASI & PENYIMPANAN SESI
+           ========================================================================= */
+        const state = {
+            currentPage: 'splash',
+            prevPage: 'menu',
+            stars: 0,
+            completedModules: new Set(),
+            voiceMuted: false,
+            bgmPlaying: false,
+            currentMateriTab: 1,
+            simulasiIndex: 0,
+            selectedPraktikumCard: null,
+            praktikumPlacements: { kakek: null, nenek: null, ayah: null, ibu: null, kakak: null, adik: null },
+            gameScore: 0,
+            evalCurrentIdx: 0,
+            evalUserAnswers: new Array(EVAL_QUESTIONS.length).fill(''),
+            evalInProgress: false,
+            pendingNavigation: null
+        };
+
+        /* =========================================================================
+           4. SISTEM AUDIO: WEB SPEECH API (id-ID) & MUSIK LATAR TONE.JS
+           ========================================================================= */
+        let indoVoice = null;
+        let bgmLoop = null;
+        let bgmSynth = null;
+
+        function initSpeechSynthesis() {
+            if (!('speechSynthesis' in window)) return;
+            const loadVoices = () => {
+                const voices = window.speechSynthesis.getVoices();
+                // Cari suara Bahasa Indonesia yang paling jernih & ramah
+                indoVoice = voices.find(v => v.lang.includes('id-ID') && (v.name.includes('Google') || v.name.includes('Gadis') || v.name.includes('Damayanti')))
+                         || voices.find(v => v.lang.includes('id'))
+                         || null;
+            };
+            loadVoices();
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function speakText(text) {
+            // Hentikan suara sebelumnya agar tidak bertumpuk
+            stopSpeech();
+            if (state.voiceMuted) return;
+
+            if (!('speechSynthesis' in window)) {
+                showToast('💬 ' + text);
+                return;
+            }
+
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                if (indoVoice) utterance.voice = indoVoice;
+                utterance.rate = 0.92; // Tidak terlalu cepat, ramah anak kelas 1 SD
+                utterance.pitch = 1.12; // Nada sedikit ceria & lembut
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                showToast('💬 ' + text);
+            }
+        }
+
+        function stopSpeech() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function toggleNarrationMute() {
+            state.voiceMuted = !state.voiceMuted;
+            const btn = document.getElementById('btn-mute-voice');
+            if (state.voiceMuted) {
+                stopSpeech();
+                btn.textContent = '🔇';
+                btn.classList.replace('bg-emerald-400', 'bg-slate-400');
+                showToast('Suara narator dimatikan');
+            } else {
+                btn.textContent = '🔊';
+                btn.classList.replace('bg-slate-400', 'bg-emerald-400');
+                showToast('Suara narator dinyalakan');
+            }
+        }
+
+        // Efek Suara Benar / Salah menggunakan Tone.js
+        function playSFX(type) {
+            try {
+                if (typeof Tone === 'undefined') return;
+                const synth = new Tone.Synth().toDestination();
+                synth.volume.value = -8;
+                if (type === 'correct') {
+                    synth.triggerAttackRelease('C5', '16n', Tone.now());
+                    synth.triggerAttackRelease('E5', '16n', Tone.now() + 0.1);
+                    synth.triggerAttackRelease('G5', '8n', Tone.now() + 0.2);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease('E4', '16n', Tone.now());
+                    synth.triggerAttackRelease('C4', '8n', Tone.now() + 0.12);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease('G5', '32n', Tone.now());
+                }
+            } catch (e) { /* Abaikan jika audio context belum diizinkan */ }
+        }
+
+        // Musik Latar Ceria Anak-anak dengan Tone.js
+        async function toggleBGM() {
+            try {
+                if (typeof Tone === 'undefined') return;
+                await Tone.start();
+                const btnHeader = document.getElementById('btn-bgm');
+                const btnSplash = document.getElementById('btn-bgm-splash');
+
+                if (!state.bgmPlaying) {
+                    if (!bgmSynth) {
+                        bgmSynth = new Tone.PolySynth(Tone.Synth, {
+                            oscillator: { type: 'triangle' },
+                            envelope: { attack: 0.05, decay: 0.2, sustain: 0.2, release: 0.5 }
+                        }).toDestination();
+                        bgmSynth.volume.value = -18;
+
+                        const melody = ['C4', 'E4', 'G4', 'E4', 'F4', 'A4', 'G4', 'E4', 'D4', 'F4', 'A4', 'G4', 'E4', 'D4', 'C4', 'G4'];
+                        let step = 0;
+                        bgmLoop = new Tone.Loop((time) => {
+                            bgmSynth.triggerAttackRelease(melody[step % melody.length], '8n', time);
+                            step++;
+                        }, '4n');
+                    }
+                    Tone.Transport.bpm.value = 110;
+                    bgmLoop.start(0);
+                    Tone.Transport.start();
+                    state.bgmPlaying = true;
+                    if (btnHeader) btnHeader.textContent = '🎶';
+                    if (btnSplash) btnSplash.innerHTML = '<span>🎶</span> Musik: Nyala';
+                    showToast('Musik latar ceria dinyalakan 🎶');
+                } else {
+                    Tone.Transport.pause();
+                    state.bgmPlaying = false;
+                    if (btnHeader) btnHeader.textContent = '🎵';
+                    if (btnSplash) btnSplash.innerHTML = '<span>🎵</span> Musik: Mati';
+                    showToast('Musik latar dimatikan');
+                }
+            } catch (e) {
+                showToast('Klik layar terlebih dahulu untuk memutar musik');
+            }
+        }
+
+        /* =========================================================================
+           5. NAVIGASI HALAMAN & GAMIFIKASI (BINTANG & PROGRESS)
+           ========================================================================= */
+        function playSplashNarration() {
+            speakText('Halo, teman-teman! Selamat datang di Petualangan Keluargaku. Hari ini kita akan belajar mengenal diri sendiri dan anggota keluarga. Ayo belajar bersama Nisa dan Bimo!');
+        }
+
+        function startLearning() {
+            playSFX('click');
+            playSplashNarration();
+            document.getElementById('page-splash').classList.add('hidden');
+            document.getElementById('app-header').classList.remove('hidden');
+            openSection('menu', true);
+        }
+
+        function openSection(sectionId, skipGreeting = false) {
+            // Konfirmasi jika sedang mengerjakan Evaluasi dan ingin keluar
+            if (state.currentPage === 'evaluasi' && state.evalInProgress && sectionId !== 'evaluasi') {
+                state.pendingNavigation = sectionId;
+                document.getElementById('confirm-exit-modal').classList.remove('hidden');
+                return;
+            }
+
+            stopSpeech();
+            playSFX('click');
+
+            // Sembunyikan semua section
+            const sections = ['splash', 'menu', 'materi', 'simulasi', 'praktikum', 'game', 'lkpd', 'evaluasi', 'pengembang'];
+            sections.forEach(s => {
+                const el = document.getElementById('page-' + s);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Tampilkan section tujuan
+            const target = document.getElementById('page-' + sectionId);
+            if (target) target.classList.remove('hidden');
+
+            state.prevPage = state.currentPage;
+            state.currentPage = sectionId;
+
+            // Atur tombol kembali di header
+            const btnBack = document.getElementById('btn-back');
+            if (sectionId === 'menu') {
+                btnBack.classList.add('hidden');
+            } else {
+                btnBack.classList.remove('hidden');
+            }
+
+            // Inisialisasi konten spesifik halaman & narasi pemandu
+            if (!skipGreeting) {
+                switch (sectionId) {
+                    case 'materi':
+                        speakText('Selamat datang di menu Materi. Ayo kita pelajari lima bagian tentang identitas diri dan keluarga!');
+                        markModuleComplete('materi', 1);
+                        break;
+                    case 'simulasi':
+                        renderSimulasiSpotlight(0);
+                        speakText('Ayo kenali keluarga Rani! Klik gambar anggota keluarga di pohon keluarga untuk berkenalan.');
+                        break;
+                    case 'praktikum':
+                        speakText('Ayo susun pohon keluarga! Pilih jenis keluarga, lalu letakkan gambar anggota keluarga pada kotak yang tepat.');
+                        break;
+                    case 'game':
+                        exitGameToSelector();
+                        speakText('Selamat datang di Arena Game Edukatif! Pilih salah satu dari tiga permainan seru.');
+                        break;
+                    case 'lkpd':
+                        speakText('Ini adalah Lembar Kerja Peserta Didik. Kamu bisa mengerjakannya langsung di sini lalu mencetaknya.');
+                        break;
+                    case 'evaluasi':
+                        resetEvaluasiUIOnly();
+                        speakText('Selamat datang di Evaluasi Akhir. Kerjakan lima belas soal dengan teliti ya!');
+                        break;
+                    case 'pengembang':
+                        speakText('Ini adalah profil pengembang media pembelajaran interaktif, Ibu Syifa Lutfiana Pangestu, S.Pd. dari S D N 3 Kelaten.');
+                        break;
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goHome() {
+            openSection('menu');
+        }
+
+        function goBack() {
+            if (state.currentPage !== 'menu') {
+                openSection('menu');
+            }
+        }
+
+        function cancelExitEvaluasi() {
+            document.getElementById('confirm-exit-modal').classList.add('hidden');
+            state.pendingNavigation = null;
+        }
+
+        function confirmExitEvaluasi() {
+            document.getElementById('confirm-exit-modal').classList.add('hidden');
+            state.evalInProgress = false;
+            if (state.pendingNavigation) {
+                const dest = state.pendingNavigation;
+                state.pendingNavigation = null;
+                openSection(dest);
+            }
+        }
+
+        function addStars(amount) {
+            state.stars += amount;
+            document.getElementById('star-count').textContent = state.stars;
+            triggerConfetti();
+        }
+
+        function markModuleComplete(moduleKey, bonusStars = 2) {
+            if (!state.completedModules.has(moduleKey)) {
+                state.completedModules.add(moduleKey);
+                const badge = document.getElementById('badge-' + moduleKey);
+                if (badge) badge.classList.remove('hidden');
+                addStars(bonusStars);
+            }
+            // Hitung persentase progress dari 6 modul utama
+            const percent = Math.min(100, Math.round((state.completedModules.size / 6) * 100));
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-text').textContent = percent + '%';
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 55, spread: 70, origin: { y: 0.7 } });
+            }
+        }
+
+        function showToast(msg, icon = '🌟') {
+            const box = document.getElementById('toast-box');
+            document.getElementById('toast-icon').textContent = icon;
+            document.getElementById('toast-msg').textContent = msg;
+            box.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => box.classList.add('hidden'), 3200);
+        }
+
+        function showHelpModal() {
+            document.getElementById('help-modal').classList.remove('hidden');
+        }
+        function closeHelpModal() {
+            document.getElementById('help-modal').classList.add('hidden');
+        }
+
+        /* =========================================================================
+           6. LOGIKA MENU MATERI (5 SUB-MATERI)
+           ========================================================================= */
+        function switchMateriTab(tabNum) {
+            playSFX('click');
+            state.currentMateriTab = tabNum;
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById('tab-mat-' + i);
+                const panel = document.getElementById('materi-content-' + i);
+                if (i === tabNum) {
+                    btn.className = 'btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-pink-500 text-white';
+                    panel.classList.remove('hidden');
+                } else {
+                    btn.className = 'btn-3d px-4 py-2.5 rounded-2xl font-bold text-sm sm:text-base bg-sky-100 text-sky-800';
+                    panel.classList.add('hidden');
+                }
+            }
+            document.getElementById('materi-step-indicator').textContent = `Bagian ${tabNum} dari 5`;
+            document.getElementById('btn-mat-prev').disabled = (tabNum === 1);
+            document.getElementById('btn-mat-next').textContent = (tabNum === 5) ? 'Selesai Materi ✅' : 'Selanjutnya ➡️';
+        }
+
+        function prevMateriTab() {
+            if (state.currentMateriTab > 1) switchMateriTab(state.currentMateriTab - 1);
+        }
+
+        function nextMateriTab() {
+            if (state.currentMateriTab < 5) {
+                switchMateriTab(state.currentMateriTab + 1);
+            } else {
+                markModuleComplete('materi', 3);
+                showToast('Hebat! Kamu telah menyelesaikan semua materi!', '🎉');
+                speakText('Hebat! Kamu sudah mempelajari semua materi. Ayo lanjut ke menu Simulasi!');
+            }
+        }
+
+        function speakCurrentMateri() {
+            const scripts = {
+                1: 'Materi satu: Mengenal Identitas Diri. Identitas diri meliputi nama lengkap, nama panggilan, usia, kelas, dan sekolah. Contohnya Rani Putri, dipanggil Rani, usia 7 tahun, kelas 1 S D, sekolah di S D N 3 Kelaten.',
+                2: 'Materi dua: Mengenal Anggota Keluarga. Anggota keluarga terdiri dari ayah, ibu, kakak, adik, kakek, dan nenek. Klik gambar mereka untuk mendengarkan penjelasannya.',
+                3: 'Materi tiga: Mengenal Hubungan Keluarga. Kakek dan nenek adalah orang tua dari ayah atau ibu kita. Ayah dan ibu adalah orang tua kita. Kakak dan adik adalah saudara kandung kita.',
+                4: 'Materi empat: Kosakata tentang keluarga. Mari kita eja dan ucapkan kata ayah, ibu, kakak, adik, kakek, nenek, dan keluarga.',
+                5: 'Materi lima: Membuat kalimat sederhana. Contohnya: Namaku Rani. Aku mempunyai keluarga. Ini ayahku. Ini ibuku. Aku mempunyai seorang adik. Aku menyayangi keluargaku.'
+            };
+            speakText(scripts[state.currentMateriTab]);
+        }
+
+        function initMateriViews() {
+            // Render Materi 2 Cards
+            const m2Container = document.getElementById('materi2-cards');
+            m2Container.innerHTML = FAMILY_MEMBERS.map((m, idx) => `
+                <button onclick="selectMateri2Member(${idx})" class="btn-3d bg-white hover:bg-amber-50 p-3 rounded-2xl border-2 border-sky-300 flex flex-col items-center">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20">${SVGs[m.id]}</div>
+                    <span class="font-title font-bold text-base sm:text-lg text-slate-800 mt-1">${m.name}</span>
+                </button>
+            `).join('');
+            selectMateri2Member(0, true);
+
+            // Render Materi 3 Tree Avatars
+            document.getElementById('tree-kakek').innerHTML = SVGs.kakek;
+            document.getElementById('tree-nenek').innerHTML = SVGs.nenek;
+            document.getElementById('tree-ayah').innerHTML = SVGs.ayah;
+            document.getElementById('tree-ibu').innerHTML = SVGs.ibu;
+            document.getElementById('tree-kakak').innerHTML = SVGs.kakak;
+            document.getElementById('tree-aku').innerHTML = SVGs.nisa;
+            document.getElementById('tree-adik').innerHTML = SVGs.adik;
+
+            // Render Materi 4 Kosakata
+            const kosaContainer = document.getElementById('kosakata-grid');
+            kosaContainer.innerHTML = VOCABULARY_EXTRA.map(v => `
+                <div class="bg-white p-4 rounded-2xl border-2 border-amber-300 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-16 h-16 mb-2">${SVGs[v.id]}</div>
+                    <h4 class="font-title font-extrabold text-xl text-slate-800">${v.name}</h4>
+                    <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full my-1">${v.syll}</span>
+                    <p class="text-xs text-slate-500 mb-3">"${v.example}"</p>
+                    <button onclick="speakText('${v.name}. ${v.syll.replace(/ - /g, ', ')}. Contoh kalimat: ${v.example}')" class="btn-3d bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-xs px-4 py-2 rounded-xl w-full">
+                        🔊 Dengarkan Kata
+                    </button>
+                </div>
+            `).join('');
+
+            // Render Materi 5 Kalimat Sederhana
+            const kalContainer = document.getElementById('kalimat-grid');
+            kalContainer.innerHTML = SIMPLE_SENTENCES.map((s, idx) => `
+                <div onclick="speakText('${s.text}')" class="cursor-pointer btn-3d bg-white hover:bg-purple-100 p-4 rounded-2xl border-2 border-purple-300 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">${s.icon}</span>
+                        <div>
+                            <h4 class="font-title font-extrabold text-lg sm:text-xl text-purple-900">${idx + 1}. "${s.text}"</h4>
+                            <p class="text-xs font-semibold text-slate-500">${s.hint}</p>
+                        </div>
+                    </div>
+                    <span class="bg-purple-500 text-white p-2.5 rounded-xl text-lg">🔊</span>
+                </div>
+            `).join('');
+        }
+
+        function selectMateri2Member(idx, silent = false) {
+            const m = FAMILY_MEMBERS[idx];
+            document.getElementById('materi2-detail-avatar').innerHTML = SVGs[m.id];
+            document.getElementById('materi2-detail-title').textContent = m.name;
+            document.getElementById('materi2-detail-desc').textContent = m.desc;
+            const btn = document.getElementById('materi2-detail-btn');
+            btn.onclick = () => speakText(`${m.name}. ${m.desc}`);
+            if (!silent) {
+                playSFX('click');
+                speakText(`${m.name}. ${m.desc}`);
+            }
+        }
+
+        /* =========================================================================
+           7. LOGIKA MENU SIMULASI: AYO KENALI KELUARGA RANI!
+           ========================================================================= */
+        const SIM_QUIZ_DATA = [
+            { q: 'Siapakah nama ayah Rani dalam simulasi tadi?', opts: ['Pak Budi', 'Pak Joko', 'Pak Hasan'], ans: 'Pak Budi' },
+            { q: 'Siapakah nama adik Rani yang masih kecil?', opts: ['Dek Rara', 'Dek Sinta', 'Dek Doni'], ans: 'Dek Rara' },
+            { q: 'Siapakah anggota keluarga yang suka bercerita kisah seru?', opts: ['Kakek', 'Adik', 'Ayah'], ans: 'Kakek' }
+        ];
+        let simQuizIndex = 0;
+        let simQuizScore = 0;
+
+        function initSimulasiGrid() {
+            const grid = document.getElementById('simulasi-family-grid');
+            grid.innerHTML = FAMILY_MEMBERS.map((m, idx) => `
+                <button onclick="renderSimulasiSpotlight(${idx})" id="sim-card-${idx}" class="btn-3d bg-white p-3 rounded-2xl border-4 border-white hover:border-amber-400 flex flex-col items-center transition-all">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20">${SVGs[m.id]}</div>
+                    <span class="font-title font-bold text-sm sm:text-base text-slate-800 mt-1">${m.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderSimulasiSpotlight(idx, speak = true) {
+            state.simulasiIndex = idx;
+            const m = FAMILY_MEMBERS[idx];
+
+            // Highlight kartu aktif
+            FAMILY_MEMBERS.forEach((_, i) => {
+                const card = document.getElementById('sim-card-' + i);
+                if (card) {
+                    if (i === idx) card.classList.add('ring-4', 'ring-pink-400', 'bg-pink-50');
+                    else card.classList.remove('ring-4', 'ring-pink-400', 'bg-pink-50');
+                }
+            });
+
+            document.getElementById('sim-spotlight-avatar').innerHTML = SVGs[m.id];
+            document.getElementById('sim-spotlight-role').textContent = m.role;
+            document.getElementById('sim-spotlight-sentence').textContent = `"${m.raniText}"`;
+            document.getElementById('sim-spotlight-detail').textContent = m.raniDetail;
+
+            if (speak) {
+                playSFX('click');
+                speakText(`${m.raniText} ${m.raniDetail}`);
+            }
+        }
+
+        function repeatSimulasiAudio() {
+            const m = FAMILY_MEMBERS[state.simulasiIndex];
+            speakText(`${m.raniText} ${m.raniDetail}`);
+        }
+
+        function nextSimulasi() {
+            const nextIdx = (state.simulasiIndex + 1) % FAMILY_MEMBERS.length;
+            renderSimulasiSpotlight(nextIdx);
+        }
+
+        function prevSimulasi() {
+            const prevIdx = (state.simulasiIndex - 1 + FAMILY_MEMBERS.length) % FAMILY_MEMBERS.length;
+            renderSimulasiSpotlight(prevIdx);
+        }
+
+        function startSimulasiQuiz() {
+            document.getElementById('simulasi-main-view').classList.add('hidden');
+            document.getElementById('simulasi-quiz-view').classList.remove('hidden');
+            simQuizIndex = 0;
+            simQuizScore = 0;
+            renderSimQuizQuestion();
+        }
+
+        function backToSimulasiTree() {
+            document.getElementById('simulasi-quiz-view').classList.add('hidden');
+            document.getElementById('simulasi-main-view').classList.remove('hidden');
+        }
+
+        function renderSimQuizQuestion() {
+            const container = document.getElementById('sim-quiz-container');
+            if (simQuizIndex >= SIM_QUIZ_DATA.length) {
+                markModuleComplete('simulasi', 3);
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="text-5xl mb-2">🌟</div>
+                        <h4 class="text-2xl font-extrabold text-purple-800">Kuis Simulasi Selesai!</h4>
+                        <p class="text-lg font-bold text-slate-700 my-2">Kamu menjawab benar ${simQuizScore} dari ${SIM_QUIZ_DATA.length} pertanyaan!</p>
+                        <button onclick="backToSimulasiTree()" class="btn-3d bg-emerald-500 text-white font-bold px-6 py-3 rounded-2xl mt-2">🌳 Kembali ke Pohon Keluarga</button>
+                    </div>
+                `;
+                speakText(`Hebat! Kamu menjawab benar ${simQuizScore} dari ${SIM_QUIZ_DATA.length} pertanyaan!`);
+                return;
+            }
+
+            const item = SIM_QUIZ_DATA[simQuizIndex];
+            speakText(item.q);
+            container.innerHTML = `
+                <p class="text-xs font-bold text-purple-600 mb-1">Pertanyaan ${simQuizIndex + 1} dari ${SIM_QUIZ_DATA.length}</p>
+                <h4 class="text-xl font-extrabold text-slate-800 mb-4">${item.q}</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    ${item.opts.map(opt => `
+                        <button onclick="answerSimQuiz('${opt}')" class="btn-3d bg-white hover:bg-purple-100 border-2 border-purple-300 font-bold py-3 px-4 rounded-2xl text-lg">${opt}</button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function answerSimQuiz(selected) {
+            const item = SIM_QUIZ_DATA[simQuizIndex];
+            if (selected === item.ans) {
+                playSFX('correct');
+                simQuizScore++;
+                showToast('Benar sekali! Hebat!', '🎉');
+                speakText('Benar sekali!');
+            } else {
+                playSFX('wrong');
+                showToast(`Kurang tepat, jawabannya adalah ${item.ans}`, '💡');
+                speakText(`Kurang tepat, jawabannya adalah ${item.ans}`);
+            }
+            simQuizIndex++;
+            setTimeout(renderSimQuizQuestion, 1200);
+        }
+
+        /* =========================================================================
+           8. LOGIKA MENU PRAKTIKUM: SUSUN POHON KELUARGA (DRAG/DROP & KLIK)
+           ========================================================================= */
+        function initPraktikum() {
+            const bank = document.getElementById('praktikum-bank');
+            // Acak urutan kartu di bank
+            const shuffled = [...FAMILY_MEMBERS].sort(() => Math.random() - 0.5);
+            bank.innerHTML = shuffled.map(m => `
+                <div id="prak-card-${m.id}" draggable="true" ondragstart="onDragStartPrak(event, '${m.id}')" onclick="selectPraktikumCard('${m.id}')"
+                     class="cursor-pointer btn-3d bg-white p-2.5 rounded-2xl border-2 border-sky-300 flex flex-col items-center w-24">
+                    <div class="w-12 h-12 pointer-events-none">${SVGs[m.id]}</div>
+                    <span class="font-title font-bold text-xs text-slate-800 mt-1 pointer-events-none">${m.name}</span>
+                </div>
+            `).join('');
+
+            // Tambahkan event dragover & drop ke setiap slot pohon
+            document.querySelectorAll('.prak-slot').forEach(slot => {
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    slot.classList.add('highlight');
+                });
+                slot.addEventListener('dragleave', () => slot.classList.remove('highlight'));
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    slot.classList.remove('highlight');
+                    const cardId = e.dataTransfer.getData('text/plain');
+                    const targetRole = slot.getAttribute('data-role');
+                    if (cardId) {
+                        state.selectedPraktikumCard = cardId;
+                        placeInSlot(targetRole);
+                    }
+                });
+            });
+        }
+
+        function onDragStartPrak(e, id) {
+            e.dataTransfer.setData('text/plain', id);
+            selectPraktikumCard(id);
+        }
+
+        function selectPraktikumCard(id) {
+            playSFX('click');
+            state.selectedPraktikumCard = id;
+            FAMILY_MEMBERS.forEach(m => {
+                const el = document.getElementById('prak-card-' + m.id);
+                if (el) {
+                    if (m.id === id) el.classList.add('ring-4', 'ring-amber-400', 'bg-amber-50');
+                    else el.classList.remove('ring-4', 'ring-amber-400', 'bg-amber-50');
+                }
+            });
+            const member = FAMILY_MEMBERS.find(m => m.id === id);
+            showToast(`Gambar ${member.name} dipilih! Klik kotak ${member.name} di pohon keluarga.`, '👆');
+        }
+
+        function placeInSlot(role) {
+            if (!state.selectedPraktikumCard) {
+                showToast('Pilih atau klik salah satu gambar di atas terlebih dahulu ya!', '💡');
+                speakText('Pilih salah satu gambar di atas terlebih dahulu ya!');
+                return;
+            }
+            const chosenId = state.selectedPraktikumCard;
+            state.praktikumPlacements[role] = chosenId;
+
+            const slotImg = document.getElementById('slot-img-' + role);
+            slotImg.innerHTML = SVGs[chosenId];
+            slotImg.classList.remove('bg-slate-100');
+            playSFX('click');
+
+            // Reset pilihan kartu
+            state.selectedPraktikumCard = null;
+            FAMILY_MEMBERS.forEach(m => {
+                const el = document.getElementById('prak-card-' + m.id);
+                if (el) el.classList.remove('ring-4', 'ring-amber-400', 'bg-amber-50');
+            });
+        }
+
+        function setPraktikumMode(mode) {
+            playSFX('click');
+            const modes = ['rani', 'fiktif', 'sendiri'];
+            modes.forEach(m => {
+                const btn = document.getElementById('prak-mode-' + m);
+                btn.className = (m === mode)
+                    ? 'btn-3d bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm'
+                    : 'btn-3d bg-white text-slate-700 font-bold px-4 py-2 rounded-xl text-sm';
+            });
+
+            const title = document.getElementById('praktikum-tree-title');
+            if (mode === 'rani') {
+                title.textContent = 'Pohon Keluarga Rani';
+                document.getElementById('slot-name-kakek').value = 'Kakek Harto';
+                document.getElementById('slot-name-nenek').value = 'Nenek Siti';
+                document.getElementById('slot-name-ayah').value = 'Pak Budi';
+                document.getElementById('slot-name-ibu').value = 'Bu Sari';
+                document.getElementById('slot-name-kakak').value = 'Kak Dimas';
+                document.getElementById('slot-name-adik').value = 'Dek Rara';
+            } else if (mode === 'fiktif') {
+                title.textContent = 'Pohon Keluarga Tokoh Fiktif';
+                document.getElementById('slot-name-kakek').value = 'Kakek Dino';
+                document.getElementById('slot-name-nenek').value = 'Nenek Luna';
+                document.getElementById('slot-name-ayah').value = 'Ayah Leo';
+                document.getElementById('slot-name-ibu').value = 'Ibu Maya';
+                document.getElementById('slot-name-kakak').value = 'Kakak Rio';
+                document.getElementById('slot-name-adik').value = 'Adik Mimi';
+            } else {
+                title.textContent = 'Pohon Keluargaku';
+                ['kakek', 'nenek', 'ayah', 'ibu', 'kakak', 'adik'].forEach(r => {
+                    document.getElementById('slot-name-' + r).value = '';
+                });
+            }
+        }
+
+        function checkPraktikum() {
+            let correctCount = 0;
+            const roles = ['kakek', 'nenek', 'ayah', 'ibu', 'kakak', 'adik'];
+            roles.forEach(r => {
+                const slotBox = document.querySelector(`.prak-slot[data-role="${r}"]`);
+                if (state.praktikumPlacements[r] === r) {
+                    correctCount++;
+                    slotBox.classList.remove('border-rose-400');
+                    slotBox.classList.add('border-4', 'border-emerald-500');
+                } else {
+                    slotBox.classList.remove('border-emerald-500');
+                    slotBox.classList.add('border-4', 'border-rose-400');
+                }
+            });
+
+            const fb = document.getElementById('praktikum-feedback');
+            fb.classList.remove('hidden');
+
+            if (correctCount === 6) {
+                playSFX('correct');
+                fb.className = 'mb-4 p-4 rounded-2xl text-center font-bold text-base sm:text-lg bg-emerald-100 text-emerald-900 border-2 border-emerald-400';
+                fb.textContent = '🎉 Luar biasa! Semua 6 anggota keluarga sudah tersusun di pohon keluarga dengan tepat!';
+                speakText('Luar biasa! Semua anggota keluarga sudah tersusun dengan tepat!');
+                markModuleComplete('praktikum', 4);
+            } else {
+                playSFX('wrong');
+                fb.className = 'mb-4 p-4 rounded-2xl text-center font-bold text-base sm:text-lg bg-amber-100 text-amber-900 border-2 border-amber-400';
+                fb.textContent = `👍 Kamu sudah menyusun ${correctCount} dari 6 gambar dengan tepat. Ayo perbaiki kotak yang berwarna merah ya!`;
+                speakText(`Kamu sudah menyusun ${correctCount} dari 6 gambar dengan tepat. Ayo perbaiki kotak yang masih kurang tepat!`);
+            }
+        }
+
+        function resetPraktikum() {
+            playSFX('click');
+            const roles = ['kakek', 'nenek', 'ayah', 'ibu', 'kakak', 'adik'];
+            roles.forEach(r => {
+                state.praktikumPlacements[r] = null;
+                const img = document.getElementById('slot-img-' + r);
+                img.innerHTML = '❓';
+                img.classList.add('bg-slate-100');
+                const slotBox = document.querySelector(`.prak-slot[data-role="${r}"]`);
+                slotBox.classList.remove('border-4', 'border-emerald-500', 'border-rose-400');
+            });
+            document.getElementById('praktikum-feedback').classList.add('hidden');
+            initPraktikum();
+        }
+
+        function savePraktikumSession() {
+            playSFX('correct');
+            showToast('Hasil Pohon Keluarga berhasil disimpan selama sesi belajar ini!', '💾');
+            speakText('Hasil pohon keluarga kamu berhasil disimpan!');
+        }
+
+        /* =========================================================================
+           9. LOGIKA MENU GAME: 3 PERMAINAN EDUKATIF
+           ========================================================================= */
+        let currentGameNumber = 0;
+        let currentGameStep = 0;
+        let currentGamePoints = 0;
+
+        // Data Game 1: Tebak Siapa Aku? (5 Soal)
+        const GAME1_DATA = [
+            { hint: 'Siapakah orang tua perempuan dalam keluarga yang merawat kita?', svg: 'ibu', opts: ['A. Ayah', 'B. Ibu', 'C. Kakak'], ans: 'B. Ibu' },
+            { hint: 'Aku adalah orang tua laki-laki dalam keluarga. Aku bekerja mencari nafkah. Siapakah aku?', svg: 'ayah', opts: ['A. Ayah', 'B. Adik', 'C. Nenek'], ans: 'A. Ayah' },
+            { hint: 'Aku adalah ayah dari ayah atau ibumu. Rambutku sudah memutih. Siapakah aku?', svg: 'kakek', opts: ['A. Kakak', 'B. Kakek', 'C. Adik'], ans: 'B. Kakek' },
+            { hint: 'Aku adalah saudara kandung yang usianya lebih muda darimu. Siapakah aku?', svg: 'adik', opts: ['A. Nenek', 'B. Ayah', 'C. Adik'], ans: 'C. Adik' },
+            { hint: 'Aku adalah ibu dari ayah atau ibumu. Aku suka membuat kue manis. Siapakah aku?', svg: 'nenek', opts: ['A. Nenek', 'B. Kakak', 'C. Ibu'], ans: 'A. Nenek' }
+        ];
+
+        // Data Game 3: Petualangan Rumah Ceria (5 Ruangan)
+        const GAME3_ROOMS = [
+            { room: '🛋️ Ruang Tamu', q: 'Di ruang tamu ada tamu datang. Bagaimana cara Rani memperkenalkan dirinya?', opts: ['Namaku Rani, kelas 1 SD.', 'Ini meja makan.', 'Selamat tidur.'], ans: 'Namaku Rani, kelas 1 SD.' },
+            { room: '🍳 Dapur Ceria', q: 'Ibu sedang memasak sayur di dapur. Ibu adalah orang tua ....', opts: ['Laki-laki', 'Perempuan', 'Tetangga'], ans: 'Perempuan' },
+            { room: '📚 Ruang Belajar', q: 'Kak Dimas menemani Rani membaca buku. Kakak adalah saudara yang lebih ....', opts: ['Muda', 'Kecil', 'Tua'], ans: 'Tua' },
+            { room: '🌻 Taman Bunga', q: 'Kakek dan Nenek sedang menyiram bunga. Nenek adalah ibu dari ....', opts: ['Adik', 'Ayah atau Ibu', 'Teman'], ans: 'Ayah atau Ibu' },
+            { room: '🧸 Kamar Bermain', q: 'Rani berbagi mainan dengan Dek Rara. Sikap Rani menunjukkan rasa ....', opts: ['Sayang kepada adik', 'Marah', 'Malas'], ans: 'Sayang kepada adik' }
+        ];
+
+        function startGame(gameNum) {
+            playSFX('click');
+            currentGameNumber = gameNum;
+            currentGameStep = 0;
+            currentGamePoints = 0;
+
+            document.getElementById('game-selector').classList.add('hidden');
+            document.getElementById('game-play-area').classList.remove('hidden');
+            updateGameScoreDisplay();
+
+            if (gameNum === 1) {
+                document.getElementById('active-game-title').textContent = '🕵️‍♀️ Game 1: Tebak Siapa Aku?';
+                renderGame1();
+            } else if (gameNum === 2) {
+                document.getElementById('active-game-title').textContent = '🃏 Game 2: Pasangkan Kata & Gambar';
+                renderGame2();
+            } else if (gameNum === 3) {
+                document.getElementById('active-game-title').textContent = '🏡 Game 3: Petualangan Rumah Ceria';
+                renderGame3();
+            }
+        }
+
+        function exitGameToSelector() {
+            document.getElementById('game-play-area').classList.add('hidden');
+            document.getElementById('game-selector').classList.remove('hidden');
+        }
+
+        function updateGameScoreDisplay() {
+            document.getElementById('active-game-score').textContent = `Skor: ${currentGamePoints}`;
+            document.getElementById('game-total-score').textContent = state.gameScore;
+        }
+
+        // --- RENDER GAME 1 ---
+        function renderGame1() {
+            const box = document.getElementById('game-canvas-container');
+            if (currentGameStep >= GAME1_DATA.length) {
+                finishSingleGame(currentGamePoints, 50);
+                return;
+            }
+            const item = GAME1_DATA[currentGameStep];
+            speakText(item.hint);
+            box.innerHTML = `
+                <div class="text-center max-w-xl mx-auto">
+                    <span class="bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">Soal ${currentGameStep + 1} dari ${GAME1_DATA.length}</span>
+                    <div class="w-28 h-28 mx-auto my-3 bg-white p-2 rounded-3xl border-4 border-pink-300 shadow">${SVGs[item.svg]}</div>
+                    <h4 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-5">"${item.hint}"</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${item.opts.map(opt => `
+                            <button onclick="checkGame1('${opt}')" class="btn-3d bg-white hover:bg-pink-100 border-2 border-pink-300 font-extrabold py-3.5 px-4 rounded-2xl text-lg">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkGame1(ans) {
+            const item = GAME1_DATA[currentGameStep];
+            if (ans === item.ans) {
+                playSFX('correct');
+                currentGamePoints += 10;
+                state.gameScore += 10;
+                updateGameScoreDisplay();
+                showToast('Hebat! Tebakanmu benar! ⭐ +10', '🎉');
+                speakText('Hebat! Tebakanmu benar!');
+            } else {
+                playSFX('wrong');
+                showToast(`Hampir tepat! Jawabannya ${item.ans}`, '💡');
+                speakText(`Hampir tepat! Jawabannya adalah ${item.ans}`);
+            }
+            currentGameStep++;
+            setTimeout(renderGame1, 1100);
+        }
+
+        // --- RENDER GAME 2 (KLIK PASANGAN KATA & GAMBAR) ---
+        let g2SelectedImg = null;
+        let g2MatchedCount = 0;
+
+        function renderGame2() {
+            g2SelectedImg = null;
+            g2MatchedCount = 0;
+            const box = document.getElementById('game-canvas-container');
+            const shuffledImgs = [...FAMILY_MEMBERS].sort(() => Math.random() - 0.5);
+            const shuffledWords = [...FAMILY_MEMBERS].sort(() => Math.random() - 0.5);
+
+            speakText('Klik gambar anggota keluarga di atas, lalu klik kata yang sesuai di bawahnya!');
+
+            box.innerHTML = `
+                <p class="text-center font-bold text-sky-800 mb-4">1️⃣ Klik Gambar Anggota Keluarga, lalu 2️⃣ Klik Kata yang Tepat!</p>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+                    ${shuffledImgs.map(m => `
+                        <button id="g2-img-${m.id}" onclick="selectG2Img('${m.id}')" class="btn-3d bg-white p-3 rounded-2xl border-4 border-sky-300 flex flex-col items-center">
+                            <div class="w-16 h-16">${SVGs[m.id]}</div>
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-xl mx-auto">
+                    ${shuffledWords.map(m => `
+                        <button id="g2-word-${m.id}" onclick="selectG2Word('${m.id}')" class="btn-3d bg-amber-300 hover:bg-amber-400 text-slate-900 font-title font-extrabold text-xl py-3.5 rounded-2xl">
+                            ${m.name}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function selectG2Img(id) {
+            playSFX('click');
+            g2SelectedImg = id;
+            FAMILY_MEMBERS.forEach(m => {
+                const el = document.getElementById('g2-img-' + m.id);
+                if (el && !el.disabled) {
+                    if (m.id === id) el.classList.add('ring-4', 'ring-pink-500', 'bg-pink-50');
+                    else el.classList.remove('ring-4', 'ring-pink-500', 'bg-pink-50');
+                }
+            });
+        }
+
+        function selectG2Word(wordId) {
+            if (!g2SelectedImg) {
+                showToast('Klik salah satu gambar di atas dulu ya!', '👆');
+                return;
+            }
+            if (g2SelectedImg === wordId) {
+                playSFX('correct');
+                const imgBtn = document.getElementById('g2-img-' + wordId);
+                const wordBtn = document.getElementById('g2-word-' + wordId);
+                imgBtn.disabled = true;
+                wordBtn.disabled = true;
+                imgBtn.className = 'p-3 rounded-2xl border-4 border-emerald-400 bg-emerald-100 opacity-60 flex flex-col items-center';
+                wordBtn.className = 'bg-emerald-500 text-white font-title font-extrabold text-xl py-3.5 rounded-2xl opacity-75';
+
+                g2SelectedImg = null;
+                g2MatchedCount++;
+                currentGamePoints += 10;
+                state.gameScore += 10;
+                updateGameScoreDisplay();
+                speakText('Cocok! Pintar sekali!');
+
+                if (g2MatchedCount === FAMILY_MEMBERS.length) {
+                    setTimeout(() => finishSingleGame(currentGamePoints, 60), 800);
+                }
+            } else {
+                playSFX('wrong');
+                showToast('Belum cocok, coba pasangan kata yang lain!', '🔄');
+                speakText('Belum cocok, coba lagi ya!');
+            }
+        }
+
+        // --- RENDER GAME 3 (PETUALANGAN RUMAH CERIA) ---
+        function renderGame3() {
+            const box = document.getElementById('game-canvas-container');
+            if (currentGameStep >= GAME3_ROOMS.length) {
+                finishSingleGame(currentGamePoints, 50);
+                return;
+            }
+            const r = GAME3_ROOMS[currentGameStep];
+            speakText(`${r.room.replace(/[^a-zA-Z\s]/g, '')}. ${r.q}`);
+            box.innerHTML = `
+                <div class="text-center max-w-xl mx-auto">
+                    <div class="inline-block bg-emerald-500 text-white font-title font-bold px-5 py-1.5 rounded-full text-lg mb-3 shadow">
+                        Ruangan ${currentGameStep + 1}/5: ${r.room}
+                    </div>
+                    <h4 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-5 bg-white p-5 rounded-3xl border-2 border-emerald-200">${r.q}</h4>
+                    <div class="space-y-3">
+                        ${r.opts.map(opt => `
+                            <button onclick="checkGame3('${opt}')" class="btn-3d w-full bg-white hover:bg-emerald-100 border-2 border-emerald-300 font-bold py-3.5 px-5 rounded-2xl text-lg">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkGame3(ans) {
+            const r = GAME3_ROOMS[currentGameStep];
+            if (ans === r.ans) {
+                playSFX('correct');
+                currentGamePoints += 10;
+                state.gameScore += 10;
+                updateGameScoreDisplay();
+                showToast('Jawaban tepat! Kamu mendapat bintang ruangan! ⭐', '🌟');
+                speakText('Jawaban tepat! Hebat!');
+            } else {
+                playSFX('wrong');
+                showToast(`Jawaban yang tepat adalah: ${r.ans}`, '💡');
+                speakText(`Jawaban yang tepat adalah ${r.ans}`);
+            }
+            currentGameStep++;
+            setTimeout(renderGame3, 1100);
+        }
+
+        function finishSingleGame(score, maxScore) {
+            markModuleComplete('game', 3);
+            const box = document.getElementById('game-canvas-container');
+            box.innerHTML = `
+                <div class="text-center py-6">
+                    <div class="text-6xl mb-3">🏆⭐🎉</div>
+                    <h4 class="text-2xl sm:text-3xl font-extrabold text-amber-600">SELAMAT! PERMAINAN SELESAI!</h4>
+                    <p class="text-xl font-bold text-slate-700 my-3">Skor Permainan Ini: <span class="text-emerald-600 font-extrabold">${score} / ${maxScore}</span></p>
+                    <p class="text-base font-semibold text-slate-600 mb-6">Kamu anak yang cerdas dan hebat! Mau main lagi atau coba permainan lainnya?</p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button onclick="startGame(${currentGameNumber})" class="btn-3d bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-2xl">🔄 Main Lagi</button>
+                        <button onclick="exitGameToSelector()" class="btn-3d bg-sky-500 text-white font-bold px-6 py-3 rounded-2xl">🎮 Pilih Game Lain</button>
+                    </div>
+                </div>
+            `;
+            speakText(`Selamat! Permainan selesai. Skor kamu ${score} dari ${maxScore}. Kamu hebat!`);
+        }
+
+        /* =========================================================================
+           10. LOGIKA MENU LKPD DIGITAL
+           ========================================================================= */
+        function initLKPD() {
+            const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('lkpd-id-tanggal').value = today;
+
+            document.getElementById('lkpd-img-1').innerHTML = SVGs.ayah;
+            document.getElementById('lkpd-img-2').innerHTML = SVGs.ibu;
+            document.getElementById('lkpd-img-3').innerHTML = SVGs.kakek;
+            document.getElementById('lkpd-img-4').innerHTML = SVGs.nenek;
+        }
+
+        function fillLKPDWithRani() {
+            playSFX('click');
+            document.getElementById('lkpd-id-nama').value = 'Rani Putri';
+            document.getElementById('lkpd-a1-1').value = 'Rani Putri';
+            document.getElementById('lkpd-a1-2').value = 'Rani';
+            document.getElementById('lkpd-a1-3').value = '7 tahun';
+            document.getElementById('lkpd-a1-4').value = '1 SD';
+
+            document.getElementById('lkpd-a2-1').value = 'Ayah';
+            document.getElementById('lkpd-a2-2').value = 'Ibu';
+            document.getElementById('lkpd-a2-3').value = 'Kakek';
+            document.getElementById('lkpd-a2-4').value = 'Nenek';
+
+            document.getElementById('lkpd-a3-1').value = 'Y';
+            document.getElementById('lkpd-a3-2').value = 'U';
+            document.getElementById('lkpd-a3-3').value = 'K';
+
+            document.getElementById('lkpd-a4-1').value = 'Aku menyayangi keluargaku';
+            document.getElementById('lkpd-a4-2').value = 'Ini ibu saya';
+
+            document.getElementById('lkpd-a5-1').value = 'Rani';
+            document.getElementById('lkpd-a5-2').value = 'ayah, ibu, kakak, dan adik';
+            document.getElementById('lkpd-a5-3').value = 'keluargaku';
+
+            showToast('LKPD telah diisi dengan contoh keluarga Rani!', '👧');
+            speakText('L K P D telah diisi menggunakan contoh keluarga Rani.');
+        }
+
+        function checkLKPD() {
+            let points = 0;
+            // Cek Aktivitas 2 (4 poin)
+            if (document.getElementById('lkpd-a2-1').value === 'Ayah') points++;
+            if (document.getElementById('lkpd-a2-2').value === 'Ibu') points++;
+            if (document.getElementById('lkpd-a2-3').value === 'Kakek') points++;
+            if (document.getElementById('lkpd-a2-4').value === 'Nenek') points++;
+
+            // Cek Aktivitas 3 (3 poin)
+            if (document.getElementById('lkpd-a3-1').value.trim().toUpperCase() === 'Y') points++;
+            if (document.getElementById('lkpd-a3-2').value.trim().toUpperCase() === 'U') points++;
+            if (document.getElementById('lkpd-a3-3').value.trim().toUpperCase() === 'K') points++;
+
+            // Cek Aktivitas 4 (2 poin)
+            const s1 = document.getElementById('lkpd-a4-1').value.trim().toLowerCase().replace(/\./g, '');
+            const s2 = document.getElementById('lkpd-a4-2').value.trim().toLowerCase().replace(/\./g, '');
+            if (s1 === 'aku menyayangi keluargaku') points++;
+            if (s2 === 'ini ibu saya') points++;
+
+            // Cek Aktivitas 1 & 5 terisi (1 poin)
+            if (document.getElementById('lkpd-a1-1').value.trim().length > 0 && document.getElementById('lkpd-a5-1').value.trim().length > 0) points++;
+
+            const score = points * 10;
+            const banner = document.getElementById('lkpd-result-banner');
+            banner.classList.remove('hidden');
+            banner.innerHTML = `🌟 Hasil Pemeriksaan LKPD: Skor kamu <strong>${score} / 100</strong>! ${score >= 80 ? 'Hebat sekali, pengerjaanmu sangat rapi dan benar!' : 'Bagus! Ayo periksa kembali bagian yang masih kosong atau kurang tepat.'}`;
+
+            if (score >= 70) {
+                playSFX('correct');
+                markModuleComplete('lkpd', 3);
+            } else {
+                playSFX('wrong');
+            }
+            speakText(`Hasil pemeriksaan L K P D, skor kamu ${score} dari 100.`);
+        }
+
+        function resetLKPD() {
+            playSFX('click');
+            const ids = ['lkpd-id-nama', 'lkpd-a1-1', 'lkpd-a1-2', 'lkpd-a1-3', 'lkpd-a1-4', 'lkpd-a3-1', 'lkpd-a3-2', 'lkpd-a3-3', 'lkpd-a4-1', 'lkpd-a4-2', 'lkpd-a5-1', 'lkpd-a5-2', 'lkpd-a5-3'];
+            ids.forEach(id => document.getElementById(id).value = '');
+            ['lkpd-a2-1', 'lkpd-a2-2', 'lkpd-a2-3', 'lkpd-a2-4'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('lkpd-result-banner').classList.add('hidden');
+            showToast('LKPD telah dibersihkan', '🔄');
+        }
+
+        /* =========================================================================
+           11. LOGIKA MENU EVALUASI (10 PG + 5 ISIAN SINGKAT)
+           ========================================================================= */
+        function resetEvaluasiUIOnly() {
+            document.getElementById('eval-intro').classList.remove('hidden');
+            document.getElementById('eval-question-screen').classList.add('hidden');
+            document.getElementById('eval-result-screen').classList.add('hidden');
+            state.evalInProgress = false;
+        }
+
+        function startEvaluasi() {
+            playSFX('click');
+            state.evalCurrentIdx = 0;
+            state.evalUserAnswers = new Array(EVAL_QUESTIONS.length).fill('');
+            state.evalInProgress = true;
+
+            document.getElementById('eval-intro').classList.add('hidden');
+            document.getElementById('eval-result-screen').classList.add('hidden');
+            document.getElementById('eval-question-screen').classList.remove('hidden');
+            renderEvalQuestion();
+        }
+
+        function resetEvaluasi() {
+            startEvaluasi();
+        }
+
+        function renderEvalQuestion() {
+            const idx = state.evalCurrentIdx;
+            const item = EVAL_QUESTIONS[idx];
+            const total = EVAL_QUESTIONS.length;
+
+            document.getElementById('eval-q-badge').textContent = `Soal ${idx + 1} dari ${total}`;
+            document.getElementById('eval-progress-bar').style.width = `${((idx + 1) / total) * 100}%`;
+            document.getElementById('eval-q-type').textContent = item.type === 'pg' ? 'Pilihan Ganda' : 'Isian Singkat';
+            document.getElementById('eval-q-text').textContent = item.q;
+
+            const optsBox = document.getElementById('eval-options-container');
+            const fillBox = document.getElementById('eval-fill-container');
+            const fillInput = document.getElementById('eval-fill-input');
+
+            if (item.type === 'pg') {
+                optsBox.classList.remove('hidden');
+                fillBox.classList.add('hidden');
+                const savedAns = state.evalUserAnswers[idx];
+
+                optsBox.innerHTML = item.options.map(opt => {
+                    const isSelected = savedAns === opt;
+                    const cls = isSelected
+                        ? 'btn-3d w-full text-left p-4 rounded-2xl border-4 border-rose-500 bg-rose-100 font-extrabold text-lg sm:text-xl text-rose-900'
+                        : 'btn-3d w-full text-left p-4 rounded-2xl border-2 border-slate-300 bg-white hover:bg-sky-50 font-bold text-lg sm:text-xl text-slate-800';
+                    return `<button onclick="selectEvalPG('${opt}')" class="${cls}">${opt}</button>`;
+                }).join('');
+            } else {
+                optsBox.classList.add('hidden');
+                fillBox.classList.remove('hidden');
+                fillInput.value = state.evalUserAnswers[idx] || '';
+                fillInput.oninput = (e) => {
+                    state.evalUserAnswers[idx] = e.target.value;
+                };
+            }
+
+            document.getElementById('btn-eval-prev').disabled = (idx === 0);
+            document.getElementById('btn-eval-next').textContent = (idx === total - 1) ? 'Selesai & Lihat Nilai 🏆' : 'Selanjutnya ➡️';
+
+            speakCurrentEvalQuestion();
+        }
+
+        function speakCurrentEvalQuestion() {
+            const item = EVAL_QUESTIONS[state.evalCurrentIdx];
+            if (item.type === 'pg') {
+                speakText(`${item.q}. Pilihannya: ${item.options.join(', ')}`);
+            } else {
+                speakText(`${item.q}. Ketik jawabanmu pada kolom yang tersedia.`);
+            }
+        }
+
+        function selectEvalPG(opt) {
+            playSFX('click');
+            state.evalUserAnswers[state.evalCurrentIdx] = opt;
+            renderEvalQuestion();
+        }
+
+        function prevEvalQuestion() {
+            if (state.evalCurrentIdx > 0) {
+                state.evalCurrentIdx--;
+                renderEvalQuestion();
+            }
+        }
+
+        function nextEvalQuestion() {
+            const currentAns = state.evalUserAnswers[state.evalCurrentIdx];
+            if (!currentAns || currentAns.trim() === '') {
+                showToast('Isi atau pilih jawabanmu dulu sebelum lanjut ya!', '✍️');
+                speakText('Pilih atau isi jawabanmu dulu ya!');
+                return;
+            }
+
+            if (state.evalCurrentIdx < EVAL_QUESTIONS.length - 1) {
+                state.evalCurrentIdx++;
+                renderEvalQuestion();
+            } else {
+                finishEvaluasi();
+            }
+        }
+
+        function finishEvaluasi() {
+            state.evalInProgress = false;
+            let correctCount = 0;
+            const reviewHTML = [];
+
+            EVAL_QUESTIONS.forEach((item, i) => {
+                const userAns = (state.evalUserAnswers[i] || '').trim();
+                let isCorrect = false;
+
+                if (item.type === 'pg') {
+                    isCorrect = (userAns === item.answer);
+                } else {
+                    const cleanUser = userAns.toLowerCase().replace(/\./g, '');
+                    if (i === 14) {
+                        // Soal 15: Aku menyayangi keluarga / keluargaku
+                        isCorrect = (cleanUser === 'keluarga' || cleanUser === 'keluargaku');
+                    } else {
+                        isCorrect = (cleanUser === item.answer.toLowerCase());
+                    }
+                }
+
+                if (isCorrect) correctCount++;
+
+                reviewHTML.push(`
+                    <div class="p-3 rounded-xl border ${isCorrect ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'} text-sm">
+                        <p class="font-bold text-slate-800">${item.q}</p>
+                        <p class="mt-1">Jawabanmu: <strong>${userAns || '-'}</strong> ${isCorrect ? '✅' : `❌ (Kunci: <strong>${item.answer}</strong>)`}</p>
+                    </div>
+                `);
+            });
+
+            const wrongCount = EVAL_QUESTIONS.length - correctCount;
+            const finalScore = Math.round((correctCount / EVAL_QUESTIONS.length) * 100);
+
+            let predikat = '';
+            let motivation = '';
+            if (finalScore >= 90) {
+                predikat = '🌟 SANGAT BAIK (A)';
+                motivation = 'Luar biasa! Kamu sudah sangat mahir mengenal identitas diri dan anggota keluarga!';
+            } else if (finalScore >= 75) {
+                predikat = '👍 BAIK (B)';
+                motivation = 'Bagus sekali! Kamu sudah memahami materi keluarga dengan baik. Terus semangat belajar!';
+            } else if (finalScore >= 60) {
+                predikat = '🙂 CUKUP (C)';
+                motivation = 'Cukup baik! Ayo baca kembali menu Materi agar nilaimu semakin tinggi!';
+            } else {
+                predikat = '💪 PERLU BIMBINGAN (D)';
+                motivation = 'Jangan menyerah ya! Ayo belajar lagi bersama Nisa dan Bimo di menu Materi dan Simulasi!';
+            }
+
+            document.getElementById('eval-question-screen').classList.add('hidden');
+            document.getElementById('eval-result-screen').classList.remove('hidden');
+
+            document.getElementById('eval-predikat').textContent = predikat;
+            document.getElementById('eval-final-score').textContent = finalScore;
+            document.getElementById('eval-correct-count').textContent = correctCount;
+            document.getElementById('eval-wrong-count').textContent = wrongCount;
+            document.getElementById('eval-motivation').textContent = motivation;
+            document.getElementById('eval-review-list').innerHTML = reviewHTML.join('');
+
+            markModuleComplete('evaluasi', 5);
+            playSFX('correct');
+            speakText(`Evaluasi selesai! Nilai akhir kamu adalah ${finalScore}. ${motivation}`);
+        }
+
+        /* =========================================================================
+           12. INISIALISASI SAAT HALAMAN DIMUAT
+           ========================================================================= */
+        window.onload = function () {
+            initSpeechSynthesis();
+
+            // Pasang Avatar Karakter Pemandu & Tokoh
+            document.getElementById('avatar-nisa-splash').innerHTML = SVGs.nisa;
+            document.getElementById('avatar-bimo-splash').innerHTML = SVGs.bimo;
+            document.getElementById('avatar-nisa-menu').innerHTML = SVGs.nisa;
+            document.getElementById('avatar-bimo-menu').innerHTML = SVGs.bimo;
+            document.getElementById('avatar-rani-materi').innerHTML = SVGs.nisa;
+            document.getElementById('avatar-developer').innerHTML = SVGs.guru;
+
+            // Grup Keluarga di Halaman Pembuka
+            document.getElementById('splash-family-group').innerHTML = `
+                <div class="w-12 h-12 sm:w-16 sm:h-16">${SVGs.kakek}</div>
+                <div class="w-12 h-12 sm:w-16 sm:h-16">${SVGs.ayah}</div>
+                <div class="w-12 h-12 sm:w-16 sm:h-16">${SVGs.ibu}</div>
+                <div class="w-12 h-12 sm:w-16 sm:h-16">${SVGs.nenek}</div>
+            `;
+
+            // Inisialisasi semua komponen interaktif
+            initMateriViews();
+            initSimulasiGrid();
+            initPraktikum();
+            setPraktikumMode('rani');
+            initLKPD();
+        };
+    </script>
+</body>
+</html>
